@@ -1,0 +1,1223 @@
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MENU
+OBJECT MODULE PLACED IN .\Output\menu.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\menu.c OPTIMIZE(0,SPEED) BROWSE INCDIR(.\Include;.\Code;.\drv;..\..\ap
+                    -p\drive) DEFINE(FOSC_160000) DEBUG OBJECTEXTEND PRINT(.\LST\menu.lst) OBJECT(.\Output\menu.obj)
+
+line level    source
+
+   1          #include "main.h"
+   2          /*
+   3          STM32 T-0002 
+   4          PB1-MENU PC13-UP PC14-DOWM PC15-ENTER
+   5          */
+   6          #if LCM_SEG_ENABLE
+   7          /*
+   8          STM32 T-0002 
+   9          PB1-MENU PC13-UP PC14-DOWM PC15-ENTER
+  10          */
+  11           //WIFI-DMX.COM
+  12          
+  13          uint8_t code Number_Char[]={"0123456789 .C"};   
+  14          
+  15          
+  16          #define TM_KEY1  0x01
+  17          #define TM_KEY2  0x08
+  18          #define TM_KEY3  0x02
+  19          #define TM_KEY4  0x10
+  20          
+  21          
+  22          
+  23          //按键属性
+  24          #define     KEY_DOWN        0x00   
+  25          #define     KEY_LONG        0x0A   
+  26          #define     KEY_LIAN        0x0B   
+  27          #define     KEY_UP          0x0C   
+  28          
+  29          #define UpLONG      (Up|KEY_LONG)                                                                          
+  30          #define DownLONG    (Down|KEY_LONG)                      
+  31          #define EscLONG     (Esc|KEY_LONG)                      
+  32          #define EnterLONG   (Enter|KEY_LONG)                      
+  33          
+  34          xdata uint8_t KeyDowmMark =0;
+  35          xdata uint8_t KeyUPMark =0;
+  36          xdata uint8_t LongMark=0;
+  37          xdata uint8_t LongKeyUPMark=0;
+  38          
+  39          xdata uint8_t
+  40          PurpleLumValue=0,
+  41          YellowLumValue=0,
+  42          WhiteLumValue=0,
+  43          BlueLumValue=0,
+  44          GreenLumValue=0,
+  45          RedLumValue=0,
+  46          Memory_Stob;
+  47          
+  48          xdata int8_t  DisplayStart     = 0;                          
+  49          xdata int8_t  UserChoose       = 0;                              
+  50          xdata int8_t  DisplayPoint     = 0;                               
+  51          xdata int8_t  MaxItems         = 0;                       
+  52          xdata int8_t  Option               = 0; 
+  53          xdata int8_t  Option1              = 0;    
+  54          xdata int8_t  Option2              = 0;    
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 2   
+
+  55                     
+  56          
+  57          void MenuKeyInit(void){
+  58   1      }
+  59          /********************************************************************************************************/
+  60          struct  Menu_TypeDef{   
+  61                  uint8_t                     Menulayer; 
+  62                  int8_t                  MenuCount;      
+  63          //      uint8_t                 *DisplayString;   
+  64          //      uint8_t                 *DisplayStrCN; 
+  65                  LED_Display                             DisplayLED[4];
+  66                  void                    (*Subs)();         
+  67                  struct  Menu_TypeDef    *ChildrenMenus;
+  68                  struct  Menu_TypeDef    *ParentMenus;  
+  69                  MenuDataUpdate_Type     MenuType;               
+  70                  Menu_Type FlashMark;
+  71          }; 
+  72          
+  73          /********************************************************************************/
+  74          static void NullSubs(void)                                                 
+  75          {                                 } 
+  76          struct Menu_TypeDef code Menu_Null;
+  77          struct Menu_TypeDef code MainMenu[];
+  78          struct Menu_TypeDef code Auto_Children[];
+  79          struct Menu_TypeDef code LED_Children[];
+  80          struct Menu_TypeDef code Manu_Children[];
+  81          struct Menu_TypeDef code Fun_Children[]; 
+  82          struct Menu_TypeDef code Run_Children[]; 
+  83          struct Menu_TypeDef code Calibrations_Children[];
+  84          
+  85          
+  86          /*******Auto自走参数设置******************************/
+  87          struct Menu_TypeDef code Auto_HclUpdate[1] =      
+  88          {                                           
+  89                          {4,1,/*"Coch    ","        ",*/LED_C,LED_1,LED_2,LED_3,Update_AutoHclFunction,&Menu_Null,Auto_Children,_
+             -MenuDataUpdate_Hcl,_FlashMode},
+  90          };
+  91          //struct Menu_TypeDef code Auto_StobUpdate[1] =    
+  92          //{                                         
+  93          //              {4,1,/*"Stob    ","        ",*/LED_S,LED_1,LED_2,LED_3,Update_AutoStobFunction,&Menu_Null,Auto_Childre
+             -n,_MenuDataUpdate_Stob,_FlashMode},
+  94          //};
+  95          
+  96          /***********************************************************/
+  97          /********RGBW 参数0~255***********************/
+  98          struct Menu_TypeDef code Manu_RedUpdate[1] =      
+  99          {                                           
+ 100                          {4,1,/*" Red    ","        ",*/LED_r,LED_e,LED_d,LED_off,Update_ManuFunction,Manu_Children,Manu_Children
+             -,_MenuDataUpdate_Red,_FlashMode},
+ 101          };
+ 102          struct Menu_TypeDef code Manu_GrnUpdate[1] =      
+ 103          {                                           
+ 104                          {4,1,/*" Green  ","        ",*/LED_g,LED_r,LED_e,LED_e,Update_ManuFunction,Manu_Children,Manu_Children,_
+             -MenuDataUpdate_Grn,_FlashMode},
+ 105          };
+ 106          struct Menu_TypeDef code Manu_BluUpdate[1] =      
+ 107          {                                           
+ 108                          {4,1,/*" Blue   ","        ",*/LED_b,LED_L,LED_u,LED_e,Update_ManuFunction,Manu_Children,Manu_Children,_
+             -MenuDataUpdate_Blu,_FlashMode},
+ 109          };
+ 110          struct Menu_TypeDef code Manu_WhiUpdate[1] =       
+ 111          {                                           
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 3   
+
+ 112                          {4,1,/*" White  ","        ",*/LED_U,LED_h,LED_I,LED_t,Update_ManuFunction,Manu_Children,Manu_Children,_
+             -MenuDataUpdate_Whi,_FlashMode},
+ 113          };
+ 114          
+ 115          struct Menu_TypeDef code Manu_YelUpdate[1] =      
+ 116          {                                           
+ 117                          {4,1,/*" Yellow ","        ",*/LED_Y,LED_e,LED_L,LED_off,Update_ManuFunction,Manu_Children,Manu_Children
+             -,_MenuDataUpdate_Yel,_FlashMode},
+ 118          };
+ 119          struct Menu_TypeDef code Manu_PurpleUpdate[1] =    
+ 120          {                                           
+ 121                          {4,1,/*" Purple ","        ",*/LED_P,LED_u,LED_r,LED_off,Update_ManuFunction,Manu_Children,Manu_Children
+             -,_MenuDataUpdate_Purple,_FlashMode},
+ 122          };
+ 123          
+ 124          struct Menu_TypeDef code Manu_StrobeUpdate[1] =    
+ 125          {                                           
+ 126                          {4,1,/*"Strobe  ","        ",*/LED_S,LED_1,LED_2,LED_3,Update_ManuFunction,Manu_Children,Manu_Children,_
+             -MenuDataUpdate_Stob,_FlashMode},
+ 127          };
+ 128          
+ 129          struct Menu_TypeDef code Calibrations_RedUpdate[1] =     
+ 130          {                                           
+ 131                          {4,1,/*" Red    ","        ",*/LED_r,LED_e,LED_d,LED_off,Update_ManuFunction,Calibrations_Children,Calib
+             -rations_Children,_MenuDataUpdate_CalibrationsRed,_FlashMode},
+ 132          };
+ 133          struct Menu_TypeDef code Calibrations_GreenUpdate[1] =   
+ 134          {                                           
+ 135                          {4,1,/*" Green  ","        ",*/LED_g,LED_r,LED_e,LED_e,Update_ManuFunction,Calibrations_Children,Calibra
+             -tions_Children,_MenuDataUpdate_CalibrationsGreen,_FlashMode},
+ 136          };
+ 137          struct Menu_TypeDef code Calibrations_BlueUpdate[1] =    
+ 138          {                                           
+ 139                          {4,1,/*" Blue  ","        ",*/LED_b,LED_L,LED_u,LED_e,Update_ManuFunction,Calibrations_Children,Calibrat
+             -ions_Children,_MenuDataUpdate_CalibrationsBlue,_FlashMode},
+ 140          };
+ 141          struct Menu_TypeDef code Calibrations_WhiteUpdate[1] =   
+ 142          {                                           
+ 143                          {4,1,/*" White  ","        ",*/LED_U,LED_h,LED_I,LED_t,Update_ManuFunction,Calibrations_Children,Calibra
+             -tions_Children,_MenuDataUpdate_CalibrationsWhite,_FlashMode},
+ 144          };        
+ 145          #if COLOR_6_ENABLE
+              struct Menu_TypeDef code Calibrations_YellowUpdate[1] =  
+              {                                           
+                              {4,1,/*" Yellow ","        ",*/LED_Y,LED_e,LED_L,LED_off,Update_ManuFunction,Calibrations_Children,Calib
+             -rations_Children,_MenuDataUpdate_CalibrationsYellow,_FlashMode},
+              };
+              struct Menu_TypeDef code Calibrations_PurpleUpdate[1] =  
+              {                                           
+                              {4,1,/*" Purple ","        ",*/LED_P,LED_u,LED_r,LED_off,Update_ManuFunction,Calibrations_Children,Calib
+             -rations_Children,_MenuDataUpdate_CalibrationsPurple,_FlashMode},
+              };
+              #endif
+ 155          //struct Menu_TypeDef code Dimmer_Children[4] =  
+ 156          //{
+ 157          //              {3,4,/*"Dimmer  ","Square  ",*/LED_C,LED_u,LED__,LED_1,Update_Dimmer0,Fun_Children,Fun_Children,_MenuD
+             -ataUpdate_None,_FlashMode1},
+ 158          //              {3,4,/*"Dimmer  ","Linear  ",*/LED_C,LED_u,LED__,LED_2,Update_Dimmer1,Fun_Children,Fun_Children,_MenuD
+             -ataUpdate_None,_FlashMode1},
+ 159          //              {3,4,/*"Dimmer  ","S-Curve ",*/LED_C,LED_u,LED__,LED_3,Update_Dimmer2,Fun_Children,Fun_Children,_MenuD
+             -ataUpdate_None,_FlashMode1},
+ 160          //              {3,4,/*"Dimmer  ","InSquare",*/LED_C,LED_u,LED__,LED_4,Update_Dimmer3,Fun_Children,Fun_Children,_MenuD
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 4   
+
+             -ataUpdate_None,_FlashMode1},
+ 161          //};
+ 162          //struct Menu_TypeDef code HZ_Children[4] =      
+ 163          //{
+ 164          //              {3,4,/*"Refresh "," 600HZ  ",*/LED_H,LED__,LED_0,LED_6,Update_RefreshRate0,Fun_Children,Fun_Children,_
+             -MenuDataUpdate_None,_FlashMode1},
+ 165          //              {3,4,/*"Refresh "," 1200HZ ",*/LED_H,LED__,LED_1,LED_2,Update_RefreshRate1,Fun_Children,Fun_Children,_
+             -MenuDataUpdate_None,_FlashMode1},
+ 166          //              {3,4,/*"Refresh "," 2400HZ ",*/LED_H,LED__,LED_2,LED_4,Update_RefreshRate2,Fun_Children,Fun_Children,_
+             -MenuDataUpdate_None,_FlashMode1},
+ 167          //              {3,4,/*"Refresh "," 4800HZ ",*/LED_H,LED__,LED_4,LED_8,Update_RefreshRate3,Fun_Children,Fun_Children,_
+             -MenuDataUpdate_None,_FlashMode1},
+ 168          //};
+ 169          //struct Menu_TypeDef code Smooth_Children[3] =  
+ 170          //{
+ 171          //              {3,3,/*"Dimmer  "," Smooth1",*/LED_S,LED_N,LED_o,LED_1,Update_Smooth0,Fun_Children,Fun_Children,_MenuD
+             -ataUpdate_None,_FlashMode1},
+ 172          //              {3,3,/*"Dimmer  "," Smooth2",*/LED_S,LED_N,LED_o,LED_2,Update_Smooth1,Fun_Children,Fun_Children,_MenuD
+             -ataUpdate_None,_FlashMode1},
+ 173          //              {3,3,/*"Dimmer  "," Smooth3",*/LED_S,LED_N,LED_o,LED_3,Update_Smooth2,Fun_Children,Fun_Children,_MenuD
+             -ataUpdate_None,_FlashMode1},
+ 174          //};
+ 175          
+ 176          struct Menu_TypeDef code NoDMXStatus_Children[2] =       
+ 177          {                                           
+ 178                          {3,2,/*"DMX Fail"," Off    ",*/LED_o,LED_F,LED_F,LED_off,Update_NoDMXStatusClose,Fun_Children,Fun_Childr
+             -en,_MenuDataUpdate_None,_FlashMode1},
+ 179                          {3,2,/*"DMX Fail"," Hold   ",*/LED_H,LED_o,LED_L,LED_d,Update_NoDMXStatusHold,Fun_Children,Fun_Children,
+             -_MenuDataUpdate_None,_FlashMode1},
+ 180          };
+ 181          struct Menu_TypeDef code LED_Children[2] =         
+ 182          {                                           
+ 183                          {3,2,/*" Light  ","  On    ",*/LED_o,LED_n,LED_off,LED_off,Update_BackLEDOn,Fun_Children,Fun_Children,_M
+             -enuDataUpdate_None,_FlashMode1},
+ 184                          {3,2,/*" Light  ","  Off   ",*/LED_o,LED_F,LED_F,LED_off,Update_BackLEDOff,Fun_Children,Fun_Children,_Me
+             -nuDataUpdate_None,_FlashMode1},
+ 185          };
+ 186          struct Menu_TypeDef code Reset_Children[2] =     
+ 187          {                                           
+ 188                          {3,2,/*" Reset  ","  Yes   ",*/LED_Y,LED_e,LED_S,LED_off,Update_ResetYes,Fun_Children,Fun_Children,_Menu
+             -DataUpdate_None,_FlashMode1},
+ 189                          {3,2,/*" Reset  ","  No    ",*/LED_n,LED_o,LED_off,LED_off,Update_ResetNo,Fun_Children,Fun_Children,_Men
+             -uDataUpdate_None,_FlashMode1},
+ 190          };
+ 191          struct Menu_TypeDef code Factory_Children[2] =   
+ 192          {                                           
+ 193                          {3,2,/*"Factory ","  Yes   ",*/LED_Y,LED_e,LED_S,LED_off,Update_FactoryYes,Fun_Children,Fun_Children,_Me
+             -nuDataUpdate_None,_FlashMode1},
+ 194                          {3,2,/*"Factory ","  No    ",*/LED_n,LED_o,LED_off,LED_off,Update_FactoryNo,Fun_Children,Fun_Children,_M
+             -enuDataUpdate_None,_FlashMode1},
+ 195          };
+ 196          #if COLOR_6_ENABLE
+              struct Menu_TypeDef code Calibrations_Children[7] =      
+              {                                               
+                              {3,7,/*"Calibrat"," Red    ",*/LED_r,LED_e,LED_d,LED_off,&NullSubs,Calibrations_RedUpdate,MainMenu,_Menu
+             -DataUpdate_None,_StaticMode},
+                              {3,7,/*"Calibrat"," Green  ",*/LED_g,LED_r,LED_e,LED_e,&NullSubs,Calibrations_GreenUpdate,MainMenu,_Menu
+             -DataUpdate_None,_StaticMode},
+                              {3,7,/*"Calibrat"," Blue   ",*/LED_b,LED_L,LED_u,LED_off,&NullSubs,Calibrations_BlueUpdate,MainMenu,_Men
+             -uDataUpdate_None,_StaticMode},                                
+                              {3,7,/*"Calibrat"," White  ",*/LED_U,LED_h,LED_I,LED_t,&NullSubs,Calibrations_WhiteUpdate,MainMenu,_Menu
+             -DataUpdate_None,_StaticMode},
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 5   
+
+                              {3,7,/*"Calibrat"," Yellow ",*/LED_Y,LED_e,LED_L,LED_off,&NullSubs,Calibrations_YellowUpdate,MainMenu,_M
+             -enuDataUpdate_None,_StaticMode},                              
+                              {3,7,/*"Calibrat"," Purple ",*/LED_P,LED_u,LED_r,LED_off,&NullSubs,Calibrations_PurpleUpdate,MainMenu,_M
+             -enuDataUpdate_None,_StaticMode},
+                              {3,7,/*"Calibrat","Default ",*/LED_d,LED_e,LED_F,LED_a,Update_CalibrationsDefaultFunction,Calibrations_C
+             -hildren,MainMenu,_MenuDataUpdate_None,_StaticMode},
+              };
+              #else
+ 208          struct Menu_TypeDef code Calibrations_Children[5] =      
+ 209          {                                               
+ 210                          {3,5,/*"Calibrat"," Red    ",*/LED_r,LED_e,LED_d,LED_off,&NullSubs,Calibrations_RedUpdate,MainMenu,_Menu
+             -DataUpdate_None,_StaticMode},
+ 211                          {3,5,/*"Calibrat"," Green  ",*/LED_g,LED_r,LED_e,LED_e,&NullSubs,Calibrations_GreenUpdate,MainMenu,_Menu
+             -DataUpdate_None,_StaticMode},
+ 212                          {3,5,/*"Calibrat"," Blue   ",*/LED_b,LED_L,LED_u,LED_off,&NullSubs,Calibrations_BlueUpdate,MainMenu,_Men
+             -uDataUpdate_None,_StaticMode},                                
+ 213                          {3,5,/*"Calibrat"," White  ",*/LED_U,LED_h,LED_I,LED_t,&NullSubs,Calibrations_WhiteUpdate,MainMenu,_Menu
+             -DataUpdate_None,_StaticMode},
+ 214                          {3,5,/*"Calibrat","Default ",*/LED_d,LED_e,LED_F,LED_a,Update_CalibrationsDefaultFunction,Calibrations_C
+             -hildren,MainMenu,_MenuDataUpdate_None,_StaticMode},
+ 215          };
+ 216          #endif
+ 217          /*********************************************************************************************************
+             -*********/
+ 218          struct Menu_TypeDef code Fade_Children[1] =     
+ 219          {                                           
+ 220                  {4,1,/*"ShowSpeed","        ",*/LED_S,LED_P,LED_E,LED_d,Update_AutoFadeFunction,Run_Children,Run_C
+             -hildren,_MenuDataUpdate_Fade,_FlashMode},
+ 221          }; 
+ 222          struct Menu_TypeDef code Auto_Children[1] =     
+ 223          {                                           
+ 224                  {3,1,/*"ShowMode","        ",*/LED_A,LED_u,LED_t,LED_o,Update_AutoHclFunction,Fade_Children,MainMe
+             -nu,_MenuDataUpdate_Hcl,_StaticMode},
+ 225          }; 
+ 226          struct Menu_TypeDef code Nors_Children[1] =       
+ 227          {                                           
+ 228                          {3,1,/*" Slave  "," Slave1 ",*/LED_S,LED_L,LED_A,LED_1,Update_Slave1Mode,Run_Children,Run_Children,_Menu
+             -DataUpdate_None,_StaticMode},
+ 229          //              {3,2,/*" Slave  "," Slave2 ",*/LED_S,LED_L,LED_A,LED_2,Update_Slave2Mode,MainMenu,MainMenu,_MenuDataUp
+             -date_None,_StaticMode},
+ 230          };
+ 231          struct Menu_TypeDef code Sond_SoseUpdate[1] =   
+ 232          {
+ 233                  {3,1,/*" Sens   ","        ",*/LED_0,LED_1,LED_2,LED_3,Update_SoundSose,Run_Children,Run_Children,
+             -_MenuDataUpdate_Sose,_FlashMode},
+ 234          };
+ 235          
+ 236          #if COLOR_6_ENABLE
+              struct Menu_TypeDef code Manu_Children[7] =      
+              {                                           
+                              {3,7,/*"Manual  "," Strobe ",*/LED_S,LED_t,LED_r,LED_o,&NullSubs,Manu_StrobeUpdate,Run_Children,_MenuDat
+             -aUpdate_None,_StaticMode},    
+                              {3,7,/*"Manual  "," Red    ",*/LED_r,LED_e,LED_d,LED_off,&NullSubs,Manu_RedUpdate,Run_Children,_MenuData
+             -Update_None,_StaticMode},
+                              {3,7,/*"Manual  "," Green  ",*/LED_g,LED_r,LED_e,LED_e,&NullSubs,Manu_GrnUpdate,Run_Children,_MenuDataUp
+             -date_None,_StaticMode},
+                              {3,7,/*"Manual  "," Blue   ",*/LED_b,LED_L,LED_u,LED_off,&NullSubs,Manu_BluUpdate,Run_Children,_MenuData
+             -Update_None,_StaticMode},
+                              {3,7,/*"Manual  "," White  ",*/LED_U,LED_h,LED_I,LED_t,&NullSubs,Manu_WhiUpdate,Run_Children,_MenuDataUp
+             -date_None,_StaticMode},
+                              {3,7,/*"Manual  "," Yellow ",*/LED_Y,LED_e,LED_L,LED_off,&NullSubs,Manu_YelUpdate,Run_Children,_MenuData
+             -Update_None,_StaticMode},
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 6   
+
+                              {3,7,/*"Manual  "," Purple ",*/LED_P,LED_u,LED_r,LED_off,&NullSubs,Manu_PurpleUpdate,Run_Children,_MenuD
+             -ataUpdate_None,_StaticMode},
+              };
+              #else
+ 248          struct Menu_TypeDef code Manu_Children[5] =      
+ 249          {                                           
+ 250                          {3,5,/*"Manual  "," Strobe ",*/LED_S,LED_t,LED_r,LED_o,&NullSubs,Manu_StrobeUpdate,Run_Children,_MenuDat
+             -aUpdate_None,_StaticMode},    
+ 251                          {3,5,/*"Manual  "," Red    ",*/LED_r,LED_e,LED_d,LED_off,&NullSubs,Manu_RedUpdate,Run_Children,_MenuData
+             -Update_None,_StaticMode},
+ 252                          {3,5,/*"Manual  "," Green  ",*/LED_g,LED_r,LED_e,LED_e,&NullSubs,Manu_GrnUpdate,Run_Children,_MenuDataUp
+             -date_None,_StaticMode},
+ 253                          {3,5,/*"Manual  "," Blue   ",*/LED_b,LED_L,LED_u,LED_off,&NullSubs,Manu_BluUpdate,Run_Children,_MenuData
+             -Update_None,_StaticMode},
+ 254                          {3,5,/*"Manual  "," White  ",*/LED_U,LED_h,LED_I,LED_t,&NullSubs,Manu_WhiUpdate,Run_Children,_MenuDataUp
+             -date_None,_StaticMode},
+ 255          };
+ 256          #endif
+ 257          
+ 258          struct Menu_TypeDef code Addr_Children[1] =      
+ 259          {
+ 260                          {2,1,/*"Address ","        ",*/LED_A,LED__,LED__,LED__,UpdateDmxAddress,MainMenu,MainMenu,_MenuDataUpdat
+             -e_Addr,_FlashMode},
+ 261          };
+ 262          struct Menu_TypeDef code Run_Children[5] =       
+ 263          {                                           
+ 264                          {2,5,/*"Run Mode"," DMX    ",*/LED_A,LED_d,LED_d,LED_r,Enter_AddrFunction,Addr_Children,MainMenu,_MenuDa
+             -taUpdate_None,_StaticMode},
+ 265                          {2,5,/*"Run Mode"," Auto   ",*/LED_A,LED_u,LED_t,LED_o,Enter_AutoFunction,Auto_Children,MainMenu,_MenuDa
+             -taUpdate_None,_StaticMode},   
+ 266                          {2,5,/*"Run Mode"," Slave  ",*/LED_S,LED_L,LED_A,LED_u,Update_Slave1Mode,Nors_Children,MainMenu,_MenuDat
+             -aUpdate_None,_StaticMode},
+ 267                          {2,5,/*"Run Mode"," Sound  ",*/LED_S,LED_o,LED_u,LED_d,Update_SoundOn,Sond_SoseUpdate,MainMenu,_MenuData
+             -Update_None,_StaticMode},
+ 268                          {2,5,/*"Run Mode"," Manual ",*/LED_N,LED_A,LED_n,LED_u,Enter_ManuFunction,Manu_Children,MainMenu,_MenuDa
+             -taUpdate_None,_StaticMode},   
+ 269          };
+ 270          struct Menu_TypeDef code Fun_Children[3] =       
+ 271          {                                           
+ 272          //              {2,6,/*"Dimmer  "," Curve  ",*/LED_C,LED_u,LED_r,LED__,&NullSubs,Dimmer_Children,MainMenu,_MenuDataUpd
+             -ate_None,_StaticMode},
+ 273          //              {2,6,/*"Refresh "," Rate   ",*/LED_H,LED__,LED__,LED__,&NullSubs,HZ_Children,MainMenu,_MenuDataUpdate_
+             -None,_StaticMode},
+ 274          //              {2,6,/*"Dimmer  "," Smooth ",*/LED_S,LED_N,LED_o,LED_o,&NullSubs,Smooth_Children,MainMenu,_MenuDataUpd
+             -ate_None,_StaticMode},                        
+ 275                          {2,3,/*" DMX    "," Fail   ",*/LED_F,LED_A,LED_I,LED_L,&NullSubs,NoDMXStatus_Children,MainMenu,_MenuData
+             -Update_None,_StaticMode},
+ 276                          {2,3,/*" Back   "," Light  ",*/LED_L,LED_E,LED_d,LED_off,&NullSubs,LED_Children,MainMenu,_MenuDataUpdate
+             -_None,_StaticMode},
+ 277                          {2,3,/*"Factory "," Sets   ",*/LED_F,LED_A,LED_C,LED_t,&NullSubs,Factory_Children,MainMenu,_MenuDataUpda
+             -te_None,_StaticMode},
+ 278          };
+ 279          struct Menu_TypeDef code Chan_Children[2] =      
+ 280          {
+ 281                          {2,2,/*"Channel ","Channel ",*/Chan_11,Chan_12,LED_c,LED_h,UpdateChannel1,MainMenu,MainMenu,_MenuDataUpd
+             -ate_None,_StaticMode},
+ 282                          {2,2,/*"Channel ","Channel ",*/Chan_21,Chan_22,LED_c,LED_h,UpdateChannel2,MainMenu,MainMenu,_MenuDataUpd
+             -ate_None,_StaticMode},
+ 283          //              {2,3,/*"Channel ","Channel ",*/Chan_31,Chan_32,LED_c,LED_h,UpdateChannel3,MainMenu,MainMenu,_MenuDataU
+             -pdate_None,_StaticMode},
+ 284          };
+ 285          struct Menu_TypeDef code Ver_Children[2] =       
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 7   
+
+ 286          {                                           
+ 287                          {2,2,/*"Version "," Beam   ",*/LED_0,LED_1,LED_2,LED_3,&NullSubs,MainMenu,MainMenu,_MenuDataUpdate_Ver,_
+             -StaticMode},
+ 288                          {2,2,/*"Version "," Beam   ",*/LED_0,LED_1,LED_2,LED_3,&NullSubs,MainMenu,MainMenu,_MenuDataUpdate_Temp,
+             -_StaticMode},
+ 289          };
+ 290          struct Menu_TypeDef (*MenuPoint) = MainMenu; 
+ 291          struct Menu_TypeDef code MainMenu[6] =    
+ 292          {
+ 293                          {1,6,/*"  DMX   ","Address ",*/LED_A,LED_d,LED_d,LED_r,Enter_AddrFunction,Addr_Children,&Menu_Null,_Menu
+             -DataUpdate_None,_StaticMode},
+ 294                          {1,6,/*"Channel "," Mode   ",*/LED_C,LED_h,LED_A,LED_n,&NullSubs,Chan_Children,&Menu_Null,_MenuDataUpdat
+             -e_None,_StaticMode},
+ 295                          {1,6,/*"  Run   ","  Mode  ",*/LED_N,LED_o,LED_d,LED_E,&NullSubs,Run_Children,&Menu_Null,_MenuDataUpdate
+             -_None,_StaticMode},
+ 296                          {1,6,/*"Settings","        ",*/LED_S,LED_E,LED_t,LED_off,&NullSubs,Fun_Children,&Menu_Null,_MenuDataUpda
+             -te_None,_StaticMode},
+ 297                          {1,6,/*"Calibrat","ions    ",*/LED_C,LED_A,LED_L,LED_I,&NullSubs,Calibrations_Children,&Menu_Null,_MenuD
+             -ataUpdate_None,_StaticMode},
+ 298                          {1,6,/*"Version ","        ",*/LED_I,LED_n,LED_F,LED_o,&NullSubs,Ver_Children,&Menu_Null,_MenuDataUpdate
+             -_None,_StaticMode},
+ 299          };
+ 300          
+ 301          
+ 302          uint8_t key_scan(void)
+ 303          {
+ 304   1          static xdata uint8_t  KeyState   = 0;       
+ 305   1          static xdata uint8_t  KeyDelay   = 0;       
+ 306   1          static xdata uint8_t  KeyBuf     = 0;      
+ 307   1      
+ 308   1          xdata uint8_t KeyPress  = NO_KEY;         
+ 309   1          xdata uint8_t KeyReturn = NO_KEY;          
+ 310   1          //SEG_Key();
+ 311   1      //      KeyPress =((pSEG->KeyBuf)&0xF000);      
+ 312   1              TM1618_ReadKey();
+ 313   1              KeyPress = (uint8_t)((TM1618_KEY[0]>>1)|TM1618_KEY[1]);
+ 314   1              switch(KeyPress)
+ 315   1              {
+ 316   2                case TM_KEY1:
+ 317   2                     KeyPress=Esc;    //TM1618_Update(&SEGMenu_Buf,LED_1,LED_1,LED_1,LED_1,LED_PN);
+ 318   2                break;
+ 319   2                case TM_KEY2:
+ 320   2                     KeyPress=Up;     //TM1618_Update(&SEGMenu_Buf,LED_2,LED_2,LED_2,LED_2,LED_PN);
+ 321   2                break;                          
+ 322   2                case TM_KEY3:
+ 323   2                     KeyPress=Down;   //TM1618_Update(&SEGMenu_Buf,LED_3,LED_3,LED_3,LED_3,LED_PN);
+ 324   2                break;
+ 325   2                case TM_KEY4:
+ 326   2                     KeyPress=Enter;  
+ 327   2                         //KeyPress=NO_KEY;
+ 328   2                         //TM1618_Update(&SEGMenu_Buf,LED_4,LED_4,LED_4,LED_4,LED_PN);
+ 329   2                break;
+ 330   2                default:KeyPress=NO_KEY;break;
+ 331   2              }       
+ 332   1      
+ 333   1          switch(KeyState){
+ 334   2              case 0:     
+ 335   2                  if( KeyPress !=NO_KEY ){
+ 336   3                      KeyState = 1;
+ 337   3                      KeyBuf   = KeyPress;  
+ 338   3                  }
+ 339   2                  break;  
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 8   
+
+ 340   2              case 1:
+ 341   2                  if( KeyPress !=NO_KEY  ){         
+ 342   3                      if(KeyBuf  != KeyPress){
+ 343   4                          KeyState  = 0;      
+ 344   4                      }
+ 345   3                      else{
+ 346   4                          KeyState  = 2;
+ 347   4                          KeyReturn = NO_KEY;//KEY_DOWN | KeyBuf;        
+ 348   4                      }
+ 349   3                  }
+ 350   2                  else{
+ 351   3                      KeyState = 0;
+ 352   3                  }
+ 353   2                  break;      
+ 354   2              case 2:            
+ 355   2                  if( KeyPress !=NO_KEY ){
+ 356   3                      KeyDelay++;
+ 357   3                      if(KeyDelay>KEY_LongPress) {
+ 358   4                                        KeyState   = 3;
+ 359   4                                        KeyDelay   = 0;
+ 360   4                      }
+ 361   3                                      else if((KeyDelay>KEY_LongPress/2)&&(MenuPoint[UserChoose].ChildrenMenus != Fun_Children)){
+ 362   4                                        KeyState   = 3;
+ 363   4                                        KeyDelay   = 0;
+ 364   4                      }
+ 365   3                              break;
+ 366   3                              }
+ 367   2                  case 3:
+ 368   2                          if( KeyPress !=NO_KEY ){                                     
+ 369   3                                              if((MenuPoint[UserChoose].ChildrenMenus == Fun_Children)||(MenuPoint[UserChoose].FlashMark==_FlashMod
+             -e)||(MenuPoint[DisplayPoint].MenuType==_MenuDataUpdate_Password)){KeyReturn  = KEY_LONG | KeyBuf; LongKeyUPMark=1;}     
+             - 
+ 370   3                  break;        
+ 371   3                  }   
+ 372   2              case 4:
+ 373   2                  if(KeyPress == NO_KEY ){
+ 374   3                      KeyState   = 0;
+ 375   3                                      if(!LongKeyUPMark){
+ 376   4                        KeyReturn  = KEY_UP | KeyBuf;           
+ 377   4                                        //KeyUPMark=1;
+ 378   4                                      } 
+ 379   3                                      KeyUPMark=1;
+ 380   3                                      LongKeyUPMark=0;
+ 381   3                                      KeyDelay   = 0;
+ 382   3                  }   
+ 383   2                  break;
+ 384   2              default :break;
+ 385   2          }       
+ 386   1          return KeyReturn;
+ 387   1      }
+ 388          
+ 389          void MenuChar(uint16_t dat,uint8_t M)
+ 390          {
+ 391   1              SEGMenu_Buf.data1 = 10;
+ 392   1              if(M>1){
+ 393   2                      SEGMenu_Buf.data2 =10;
+ 394   2              }
+ 395   1              else{
+ 396   2                      SEGMenu_Buf.data2 = (uint8_t)(dat % 1000 / 100);
+ 397   2              }
+ 398   1              SEGMenu_Buf.data3 = (uint8_t)(dat % 100 / 10);
+ 399   1              SEGMenu_Buf.data4 = (uint8_t)(dat % 10);
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 9   
+
+ 400   1      }
+ 401          /*
+ 402          void SystemShowDMX(void)
+ 403          {
+ 404                  if((DMX_RegStructure.DMX_SIGNAL_MARK>300)||(SYS_State==SYS_Slave)){
+ 405                          //LCM_Write_string(0,0,"DMX FAIL");     
+ 406                          //if(SYS_StateBuf==SYS_Dmx){LCM_LIGHT_ON;}
+ 407                  }
+ 408                  else{
+ 409                          //LCM_Write_string(0,0,"DMX");
+ 410                  }
+ 411                  
+ 412                  MenuChar(Memory_Struct.Memory_Addr,0);
+ 413                  SEGMenu_Buf.data1=LED_A;
+ 414          }
+ 415          
+ 416          
+ 417          void SystemShow(void)
+ 418          {
+ 419                  SEGMenu_Buf.Point=LED_PN;
+ 420                  if((SYS_StateBuf==SYS_Dmx)){
+ 421                          SystemShowDMX();
+ 422                  }
+ 423                  else{           
+ 424                  switch(SYS_State){
+ 425                          case SYS_Colo:
+ 426                          TM1618_Update(&SEGMenu_Buf,LED_N,LED_A,LED_n,LED_u,LED_PN);
+ 427                          break;
+ 428                          case SYS_Dmx:
+ 429                          MenuChar(Memory_Struct.Memory_Addr,0);
+ 430                          SEGMenu_Buf.data1=LED_A;
+ 431                          break;
+ 432                          case SYS_Auto:
+ 433                          MenuChar(Memory_Struct.Memory_Hcl,2);
+ 434                          SEGMenu_Buf.data1=LED_A;
+ 435                          SEGMenu_Buf.data2=LED_u;
+ 436                          break;
+ 437                          case SYS_Soud:
+ 438                          TM1618_Update(&SEGMenu_Buf,LED_S,LED_o,LED_u,LED_d,LED_PN);
+ 439                          break;
+ 440                          case SYS_Slave:
+ 441                          if(Memory_Struct.Memory_Mode == _SlaveMode1){
+ 442                                  TM1618_Update(&SEGMenu_Buf,LED_S,LED_L,LED_A,LED_1,LED_PN);
+ 443                          }
+ 444                          else{
+ 445                                  TM1618_Update(&SEGMenu_Buf,LED_S,LED_L,LED_A,LED_2,LED_PN);             
+ 446                          }
+ 447                          break;
+ 448                          default:break;
+ 449                  }       
+ 450                  }
+ 451                  TempDispMark=1;
+ 452          }
+ 453          */
+ 454          //*------------------------------------------------------------------------------
+ 455          //*显示函数
+ 456          //*------------------------------------------------------------------------------
+ 457          void MenuShow(void){
+ 458   1                      pSEG=&SEGMenu_Buf;
+ 459   1                      MaxItems = MenuPoint[0].MenuCount; 
+ 460   1                      DisplayPoint = DisplayStart;
+ 461   1                  SEGMenu_Buf.Point=LED_PN;
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 10  
+
+ 462   1      
+ 463   1               switch (MenuPoint[DisplayPoint].MenuType)
+ 464   1                        {
+ 465   2                      case _MenuDataUpdate_Addr: 
+ 466   2                                MenuChar(Memory_Struct.Memory_Addr,0);
+ 467   2                                SEGMenu_Buf.data1=LED_A;
+ 468   2                                break; 
+ 469   2                  case _MenuDataUpdate_Hcl:
+ 470   2                                MenuChar(Memory_Struct.Memory_Hcl,2);
+ 471   2                                SEGMenu_Buf.data1=LED_A;
+ 472   2                                SEGMenu_Buf.data2=LED_u;
+ 473   2                            break;
+ 474   2                      case _MenuDataUpdate_Stob:
+ 475   2                                MenuChar(Memory_Struct.Memory_Stob,0);
+ 476   2                            break; 
+ 477   2                      case _MenuDataUpdate_Fade:
+ 478   2                                MenuChar(Memory_Struct.Memory_Fade,0);
+ 479   2                                SEGMenu_Buf.data1=LED_S;
+ 480   2                                SEGMenu_Buf.data2=LED_P;
+ 481   2                            break;
+ 482   2                      case _MenuDataUpdate_Red:
+ 483   2                                MenuChar(LED_RegStructure.RedLumValue,0);
+ 484   2                            break;
+ 485   2                      case _MenuDataUpdate_Grn:
+ 486   2                                MenuChar(LED_RegStructure.GreenLumValue,0);
+ 487   2                                break;
+ 488   2                  case _MenuDataUpdate_Blu:
+ 489   2                                MenuChar(LED_RegStructure.BlueLumValue,0);
+ 490   2                            break;
+ 491   2                      case _MenuDataUpdate_Whi:
+ 492   2                                MenuChar(LED_RegStructure.WhiteLumValue,0);
+ 493   2                            break;
+ 494   2      #if COLOR_6_ENABLE
+                              case _MenuDataUpdate_Yel:
+                                        MenuChar(LED_RegStructure.YellowLumValue,0);
+                                    break;
+                              case _MenuDataUpdate_Purple:
+                                        MenuChar(LED_RegStructure.PurpleLumValue,0);
+                                    break;
+              #endif
+ 502   2                      case _MenuDataUpdate_CalibrationsRed:
+ 503   2                                MenuChar(Memory_Struct.Memory_CalibrationsRed,0);
+ 504   2                            break;
+ 505   2                      case _MenuDataUpdate_CalibrationsGreen:
+ 506   2                                MenuChar(Memory_Struct.Memory_CalibrationsGreen,0);
+ 507   2                            break;
+ 508   2                      case _MenuDataUpdate_CalibrationsBlue:
+ 509   2                                MenuChar(Memory_Struct.Memory_CalibrationsBlue,0);
+ 510   2                            break;
+ 511   2                      case _MenuDataUpdate_CalibrationsWhite:
+ 512   2                                MenuChar(Memory_Struct.Memory_CalibrationsWhite,0);
+ 513   2                            break;    
+ 514   2      #if COLOR_6_ENABLE
+                              case _MenuDataUpdate_CalibrationsYellow:
+                                        MenuChar(Memory_Struct.Memory_CalibrationsYellow,0);
+                                    break;
+                              case _MenuDataUpdate_CalibrationsPurple:
+                                        MenuChar(Memory_Struct.Memory_CalibrationsPurple,0);
+              #endif
+ 521   2                            break;
+ 522   2                      case _MenuDataUpdate_Temp:      
+ 523   2                               MenuChar(Temperature,2);
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 11  
+
+ 524   2                           SEGMenu_Buf.data1=SEGMenu_Buf.data3;
+ 525   2                               SEGMenu_Buf.data2=SEGMenu_Buf.data4;
+ 526   2                               SEGMenu_Buf.data3=LED_Du;
+ 527   2                               SEGMenu_Buf.data4=LED_C;
+ 528   2                               break; 
+ 529   2                      case _MenuDataUpdate_Ver:
+ 530   2                           SEGMenu_Buf.data1=LED_u;
+ 531   2                               SEGMenu_Buf.data2=Ver_No1;
+ 532   2                               SEGMenu_Buf.data3=Ver_No2;
+ 533   2                               SEGMenu_Buf.data4=Ver_No3;
+ 534   2                               SEGMenu_Buf.Point|=LED_P2;
+ 535   2                               break;
+ 536   2                      case _MenuDataUpdate_Sose:
+ 537   2                               MenuChar(Memory_Struct.Memory_Sose,0);
+ 538   2                           break;
+ 539   2                      case _MenuDataUpdate_LED:
+ 540   2                               MenuChar(Memory_Struct.Memory_BACKLED,2);
+ 541   2                           break;
+ 542   2                      case _MenuDataUpdate_None:
+ 543   2                               SEGMenu_Buf.data1 = MenuPoint[DisplayPoint].DisplayLED[0];
+ 544   2                   SEGMenu_Buf.data2 = MenuPoint[DisplayPoint].DisplayLED[1];
+ 545   2                   SEGMenu_Buf.data3 = MenuPoint[DisplayPoint].DisplayLED[2];
+ 546   2                   SEGMenu_Buf.data4 = MenuPoint[DisplayPoint].DisplayLED[3];                  
+ 547   2                               break;
+ 548   2                      default :break;
+ 549   2                        }     
+ 550   1                        
+ 551   1              TM1618_Display();                 
+ 552   1      }
+ 553          
+ 554          //*------------------------------------------------------------------------------
+ 555          //*菜单执行函数
+ 556          //*------------------------------------------------------------------------------
+ 557          /*
+ 558          void MenuGetAdd(uint8_t* Bytedata,uint8_t max,uint8_t min,uint8_t ENLong){ 
+ 559                  if((LongMark)&&(ENLong)){
+ 560                          * Bytedata=(* Bytedata<max)?* Bytedata+10:min;
+ 561                          if(* Bytedata>max)* Bytedata=max;
+ 562                  }
+ 563                  else{
+ 564                          * Bytedata=(* Bytedata<max)?* Bytedata+1:min;                    
+ 565                  }
+ 566                  if(* Bytedata==max){
+ 567                          KeyUPMark=0;
+ 568                  }
+ 569          }
+ 570          void MenuGetDec(uint8_t* Bytedata,uint8_t max,uint8_t min,uint8_t ENLong)
+ 571          { 
+ 572                  if((LongMark)&&(ENLong)){
+ 573                          * Bytedata=(* Bytedata>min)?* Bytedata-10:max;
+ 574                          if(* Bytedata>max)* Bytedata=max;
+ 575                  }
+ 576                  else{
+ 577                          * Bytedata=(* Bytedata>min)?* Bytedata-1:max;                    
+ 578                  }
+ 579                  if(* Bytedata==min){
+ 580                          KeyUPMark=0;
+ 581                  }
+ 582          }
+ 583          */
+ 584          void GetAddDec(uint16_t* Bytedata,uint16_t xdata max,uint8_t xdata min,uint8_t xdata adddec){ 
+ 585   1              if(adddec){
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 12  
+
+ 586   2                      if((LongMark)&&(1)){
+ 587   3                              * Bytedata=(* Bytedata<max)?* Bytedata+10:min;
+ 588   3                              if(* Bytedata>max)* Bytedata=max;
+ 589   3                      }
+ 590   2                      else{
+ 591   3                              * Bytedata=(* Bytedata<max)?* Bytedata+1:min;                    
+ 592   3                      }
+ 593   2                      if(* Bytedata==max){
+ 594   3                              KeyUPMark=0;
+ 595   3                      }       
+ 596   2              }
+ 597   1              else{
+ 598   2                      if((LongMark)&&(1)){
+ 599   3                              * Bytedata=(* Bytedata>min)?* Bytedata-10:max;
+ 600   3                              if(* Bytedata>max)* Bytedata=max;
+ 601   3                      }
+ 602   2                      else{
+ 603   3                              * Bytedata=(* Bytedata>min)?* Bytedata-1:max;                    
+ 604   3                      }
+ 605   2                      if(* Bytedata==min){
+ 606   3                              KeyUPMark=0;
+ 607   3                      }       
+ 608   2              }
+ 609   1      
+ 610   1      }
+ 611          
+ 612          uint8_t MenuAddDec(uint8_t adddec)
+ 613          {
+ 614   1        switch (MenuPoint[DisplayPoint].MenuType)
+ 615   1        {
+ 616   2                      case _MenuDataUpdate_Addr:      
+ 617   2                               GetAddDec(&Memory_Struct.Memory_Addr,512,1,adddec);
+ 618   2                      break;
+ 619   2                      case _MenuDataUpdate_Hcl:
+ 620   2                               GetAddDec(&Memory_Struct.Memory_Hcl,8,1,adddec);
+ 621   2                               Task_Sys_i=0;
+ 622   2                           LED_RegStructure.HclValue=0;                  
+ 623   2                      break;
+ 624   2                      case _MenuDataUpdate_Stob:
+ 625   2                               GetAddDec(&Memory_Struct.Memory_Stob,255,0,adddec);
+ 626   2                               LedStobValueUpdate(Memory_Struct.Memory_Stob);
+ 627   2                               Memory_Stob=Memory_Struct.Memory_Stob;
+ 628   2                      break;
+ 629   2                      case _MenuDataUpdate_Fade:
+ 630   2                               GetAddDec(&Memory_Struct.Memory_Fade,50,0,adddec);
+ 631   2                      break;
+ 632   2                      case _MenuDataUpdate_Red:
+ 633   2                               GetAddDec(&LED_RegStructure.RedLumValue,255,0,adddec);
+ 634   2                               LedRedValueUpdate(LED_RegStructure.RedLumValue);
+ 635   2                               RedLumValue=LED_RegStructure.RedLumValue;
+ 636   2                      break;
+ 637   2                      case _MenuDataUpdate_Grn:
+ 638   2                           GetAddDec(&LED_RegStructure.GreenLumValue,255,0,adddec);
+ 639   2                               LedGreenValueUpdate(LED_RegStructure.GreenLumValue);
+ 640   2                               GreenLumValue=LED_RegStructure.GreenLumValue;
+ 641   2                      break;
+ 642   2                      case _MenuDataUpdate_Blu:
+ 643   2                           GetAddDec(&LED_RegStructure.BlueLumValue,255,0,adddec);
+ 644   2                               LedBlueValueUpdate(LED_RegStructure.BlueLumValue);
+ 645   2                               BlueLumValue=LED_RegStructure.BlueLumValue;
+ 646   2                      break;
+ 647   2                      case _MenuDataUpdate_Whi:
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 13  
+
+ 648   2                           GetAddDec(&LED_RegStructure.WhiteLumValue,255,0,adddec);
+ 649   2                               LedWhiteValueUpdate(LED_RegStructure.WhiteLumValue);
+ 650   2                               WhiteLumValue=LED_RegStructure.WhiteLumValue;
+ 651   2                      break;
+ 652   2      #if COLOR_6_ENABLE
+                              case _MenuDataUpdate_Yel:
+                                   GetAddDec(&LED_RegStructure.YellowLumValue,255,0,adddec);
+                                       LedYellowValueUpdate(LED_RegStructure.YellowLumValue);
+                                       YellowLumValue=LED_RegStructure.YellowLumValue;
+                              break;
+                              case _MenuDataUpdate_Purple:
+                                   GetAddDec(&LED_RegStructure.PurpleLumValue,255,0,adddec);
+                                       LedPurpleValueUpdate(LED_RegStructure.PurpleLumValue);
+                                       PurpleLumValue=LED_RegStructure.PurpleLumValue;
+              #endif
+ 663   2                      break;
+ 664   2                      case _MenuDataUpdate_Sose:
+ 665   2                               GetAddDec(&Memory_Struct.Memory_Sose,255,0,adddec);     
+ 666   2                      break;
+ 667   2                      case _MenuDataUpdate_LED:
+ 668   2                               GetAddDec(&Memory_Struct.Memory_BACKLED,10,1,adddec);   
+ 669   2                      break;                   
+ 670   2                      case _MenuDataUpdate_CalibrationsRed:
+ 671   2                               GetAddDec(&Memory_Struct.Memory_CalibrationsRed,255,Calibrations_Min,adddec);
+ 672   2                      break;
+ 673   2                      case _MenuDataUpdate_CalibrationsGreen:
+ 674   2                               GetAddDec(&Memory_Struct.Memory_CalibrationsGreen,255,Calibrations_Min,adddec);
+ 675   2                      break;
+ 676   2                      case _MenuDataUpdate_CalibrationsBlue:
+ 677   2                               GetAddDec(&Memory_Struct.Memory_CalibrationsBlue,255,Calibrations_Min,adddec);
+ 678   2                      break;
+ 679   2                      case _MenuDataUpdate_CalibrationsWhite:
+ 680   2                               GetAddDec(&Memory_Struct.Memory_CalibrationsWhite,255,Calibrations_Min,adddec);
+ 681   2                      break;                          
+ 682   2      #if COLOR_6_ENABLE
+                              case _MenuDataUpdate_CalibrationsYellow:
+                                       GetAddDec(&Memory_Struct.Memory_CalibrationsYellow,255,Calibrations_Min,adddec);
+                              break;
+                              case _MenuDataUpdate_CalibrationsPurple:
+                                       GetAddDec(&Memory_Struct.Memory_CalibrationsPurple,255,Calibrations_Min,adddec);
+                              break;
+              #endif
+ 690   2                      case _MenuDataUpdate_Password:
+ 691   2                               GetAddDec(&Memory_Struct.Memory_Password,255,0,adddec);
+ 692   2                      break;
+ 693   2                      default :return 0;
+ 694   2       }
+ 695   1      return 1;
+ 696   1      }
+ 697          
+ 698          void MenuDisplayStart2(uint8_t xdata a,uint8_t xdata b){
+ 699   1              MenuPoint = MenuPoint[UserChoose].ChildrenMenus;
+ 700   1              if(a == b){
+ 701   2                      UserChoose   = 0; 
+ 702   2                      DisplayStart = 0; 
+ 703   2              }
+ 704   1              else{
+ 705   2                      UserChoose   = 1; 
+ 706   2                      DisplayStart = 1; 
+ 707   2              }                                                                       
+ 708   1      }
+ 709          void MenuDisplayStart5(uint8_t xdata a)
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 14  
+
+ 710          {
+ 711   1              MenuPoint = MenuPoint[UserChoose].ChildrenMenus;
+ 712   1              switch(a){
+ 713   2              case 0:
+ 714   2                      UserChoose   = 0; 
+ 715   2                      DisplayStart = 0; 
+ 716   2              break;
+ 717   2              case 1:
+ 718   2                      UserChoose   = 1; 
+ 719   2                      DisplayStart = 1; 
+ 720   2              break;
+ 721   2              case 2:
+ 722   2                      UserChoose   = 2; 
+ 723   2                      DisplayStart = 2; 
+ 724   2              break;
+ 725   2              case 3:
+ 726   2                      UserChoose   = 3; 
+ 727   2                      DisplayStart = 3; 
+ 728   2              break;
+ 729   2              case 4:
+ 730   2                      UserChoose   = 4; 
+ 731   2                      DisplayStart = 4; 
+ 732   2              break;
+ 733   2              default:break;
+ 734   2              }                                                                               
+ 735   1      }
+ 736          
+ 737          void MenuDisplayStart5_(uint8_t xdata a)
+ 738          {
+ 739   1              MenuPoint = MenuPoint[UserChoose].ChildrenMenus;
+ 740   1              switch(a){
+ 741   2              case _1channel:
+ 742   2                      UserChoose   = 0; 
+ 743   2                      DisplayStart = 0; 
+ 744   2              break;
+ 745   2              case _2channel:
+ 746   2                      UserChoose   = 1; 
+ 747   2                      DisplayStart = 1; 
+ 748   2              break;
+ 749   2              case _3channel:
+ 750   2                      UserChoose   = 2; 
+ 751   2                      DisplayStart = 2; 
+ 752   2              break;
+ 753   2              case _4channel:
+ 754   2                      UserChoose   = 3; 
+ 755   2                      DisplayStart = 3; 
+ 756   2              break;
+ 757   2              default:break;
+ 758   2              }                                                                               
+ 759   1      }
+ 760          
+ 761          void MenuChoose(void){
+ 762   1              if(MenuPoint[0].Menulayer==3){
+ 763   2                      if(MenuPoint[0].MenuCount>Option2)UserChoose =Option2;
+ 764   2              }
+ 765   1              else if(MenuPoint[0].Menulayer==2){
+ 766   2                      if(MenuPoint[0].MenuCount>Option1)UserChoose =Option1;
+ 767   2              }
+ 768   1              else{
+ 769   2                      if(MenuPoint[0].MenuCount>Option)UserChoose =Option;
+ 770   2              }
+ 771   1      }
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 15  
+
+ 772          
+ 773          void Menulayer_Choose(void){    
+ 774   1              if(MenuPoint[0].Menulayer==3) {
+ 775   2                      Option2 = UserChoose;
+ 776   2              }
+ 777   1              else if(MenuPoint[0].Menulayer==2) {
+ 778   2                      Option1 = UserChoose;
+ 779   2              }
+ 780   1              else {
+ 781   2                      Option = UserChoose;
+ 782   2              }
+ 783   1      }
+ 784          
+ 785          void SYS_MenuInit(void){
+ 786   1              Option=2;
+ 787   1              Option1=2;
+ 788   1              MenuPoint=Run_Children; 
+ 789   1              switch(SYS_State){
+ 790   2              case SYS_Dmx:
+ 791   2                      UserChoose   = 0; 
+ 792   2                      DisplayStart = 0; 
+ 793   2              break;
+ 794   2              case SYS_Auto:
+ 795   2                      UserChoose   = 1; 
+ 796   2                      DisplayStart = 1; 
+ 797   2              break;
+ 798   2              case SYS_Slave:
+ 799   2                      UserChoose   = 2; 
+ 800   2                      DisplayStart = 2; 
+ 801   2              break;
+ 802   2              case SYS_Soud:
+ 803   2                      UserChoose   = 3; 
+ 804   2                      DisplayStart = 3; 
+ 805   2              break;
+ 806   2              case SYS_Colo:
+ 807   2                      UserChoose   = 4; 
+ 808   2                      DisplayStart = 4; 
+ 809   2              break;
+ 810   2              default:break;
+ 811   2              }
+ 812   1      }
+ 813          
+ 814          //*------------------------------------------------------------------------------
+ 815          //*菜单执行函数
+ 816          //*------------------------------------------------------------------------------
+ 817          void MenuChange(void)
+ 818          { 
+ 819   1      xdata uint8_t GetKeyNum;
+ 820   1                 static xdata uint16_t EscLongNum=0,DmxMark=0,FlashNum=0;
+ 821   1                      GetKeyNum = key_scan();
+ 822   1      
+ 823   1                      DmxMark=DmxMark;
+ 824   1                      MaxItems = MenuPoint[0].MenuCount;        //获取当前菜单的条目数
+ 825   1                      if (GetKeyNum != NO_KEY)
+ 826   1                      {               //确定有功能按键被按下的情况下才执行其功能
+ 827   2                              TempDispMark = 0;
+ 828   2                              pSEG=&SEGMenu_Buf;
+ 829   2                              BackLightNum=1;
+ 830   2                              FlashNum=1;
+ 831   2                              DmxMark=0;
+ 832   2                              if(LCDDisplight == 0){
+ 833   3                                      MenuShow();
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 16  
+
+ 834   3                                      SystemNum=1;
+ 835   3                                      LCM_LIGHT_ON ;
+ 836   3                                      return ;
+ 837   3                              }
+ 838   2                              LCM_LIGHT_ON ;
+ 839   2                              SystemNum=1;
+ 840   2                              switch (GetKeyNum)
+ 841   2                              {
+ 842   3                                      case Up|KEY_UP:         
+ 843   3                                                 if(!MenuAddDec(1)){
+ 844   4                                                  UserChoose--;                       //用户菜单的选择
+ 845   4                                                  if(UserChoose < 0)
+ 846   4                                                    {
+ 847   5                                                          UserChoose = MaxItems - 1;
+ 848   5                                                        }
+ 849   4                                                  }  
+ 850   3                                              break;
+ 851   3                                      case Down|KEY_UP:
+ 852   3                                             if(!MenuAddDec(0)){
+ 853   4                                                  UserChoose++;
+ 854   4                                                  if(UserChoose == MaxItems)
+ 855   4                                                    {
+ 856   5                                                         UserChoose = 0;
+ 857   5                                                    }
+ 858   4                                                 }
+ 859   3                                              break;
+ 860   3                                      case UpLONG: 
+ 861   3                                          if(KeyUPMark){
+ 862   4                                            if(!MenuAddDec(1))
+ 863   4                                                {
+ 864   5                                                      return ;
+ 865   5                                                }
+ 866   4                                              }
+ 867   3                                              else{
+ 868   4                                                 return ;
+ 869   4                                              }
+ 870   3                                              break;
+ 871   3                                      case DownLONG:
+ 872   3                                          if(KeyUPMark){ 
+ 873   4                                                if(!MenuAddDec(0)){
+ 874   5                                                      return ;
+ 875   5                                                }
+ 876   4                                              }
+ 877   3                                              else{
+ 878   4                                                 return ;
+ 879   4                                              }
+ 880   3                                              break;
+ 881   3                                      case Enter|KEY_UP:
+ 882   3      /**********************************************************************************************/
+ 883   3                                              
+ 884   3                                              if ((MenuPoint[UserChoose].Subs) != NullSubs){ 
+ 885   4                                      (*MenuPoint[UserChoose].Subs)();                  
+ 886   4                                  } 
+ 887   3                                              if((MenuPoint[UserChoose].FlashMark == _FlashMode)||(MenuPoint[UserChoose].FlashMark == _FlashMode1))
+             -{
+ 888   4                                                 FlashNum=0;
+ 889   4                                         MenuPoint = MenuPoint[0].ParentMenus;                
+ 890   4                                         UserChoose    = 0; 
+ 891   4                                         DisplayStart  = 0; 
+ 892   4                                         MenuChoose();
+ 893   4                                              }
+ 894   3                                              else if (MenuPoint[UserChoose].ChildrenMenus != &Menu_Null){ 
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 17  
+
+ 895   4                                      if(MenuPoint[UserChoose].ChildrenMenus != MainMenu){
+ 896   5                                            Menulayer_Choose();
+ 897   5                                                        if(MenuPoint[UserChoose].ChildrenMenus==Run_Children){
+ 898   6                                                          MenuDisplayStart5(SYS_State);                                       
+ 899   6                                                        }
+ 900   5                                                        else 
+ 901   5                                                        if(MenuPoint[UserChoose].ChildrenMenus==Chan_Children){
+ 902   6                                                              MenuDisplayStart5_(Memory_Struct.Memory_Chan);                                                  
+ 903   6                                                        }
+ 904   5      //                                                else if(MenuPoint[UserChoose].ChildrenMenus==Dimmer_Children){
+ 905   5      //                                                      MenuDisplayStart5(Memory_Struct.Memory_Dimmer);                                                 
+ 906   5      //                                                }
+ 907   5      //                                                else if(MenuPoint[UserChoose].ChildrenMenus==HZ_Children){
+ 908   5      //                                                      MenuDisplayStart5(Memory_Struct.Memory_RefreshRate);                                                    
+ 909   5      //                                                }
+ 910   5      //                                                else if(MenuPoint[UserChoose].ChildrenMenus==Smooth_Children){
+ 911   5      //                                                      MenuDisplayStart5(Memory_Struct.Memory_Smooth);                                                 
+ 912   5      //                                                }
+ 913   5      //                                                else if(MenuPoint[UserChoose].ChildrenMenus==Nors_Children) 
+ 914   5      //                                                {
+ 915   5      //                                                      MenuDisplayStart2(Memory_Struct.Memory_Mode,_SlaveMode1);                                       
+ 916   5      //                                                }
+ 917   5      //                                                else if(MenuPoint[UserChoose].ChildrenMenus==Sond_Children){
+ 918   5      //                                                      MenuDisplayStart2(Memory_Struct.Memory_Soud,1);                                 
+ 919   5      //                                                }
+ 920   5                                                        else if(MenuPoint[UserChoose].ChildrenMenus==NoDMXStatus_Children){
+ 921   6                                                              MenuDisplayStart5(Memory_Struct.Memory_NoDMXStatus);                                                    
+ 922   6                                                        }
+ 923   5                                                        else if(MenuPoint[UserChoose].ChildrenMenus==LED_Children){
+ 924   6                                                          MenuDisplayStart2(Memory_Struct.Memory_LED,1);                                              
+ 925   6                                                        }
+ 926   5                                                        else{
+ 927   6                                                          MenuPoint = MenuPoint[UserChoose].ChildrenMenus; 
+ 928   6                                                              UserChoose   = 0; 
+ 929   6                                          DisplayStart = 0; 
+ 930   6                                                        }                     
+ 931   5                                      }
+ 932   4                                                      else{
+ 933   5                                                        MenuPoint = MenuPoint[0].ParentMenus;                         
+ 934   5                                            UserChoose         = 0; 
+ 935   5                                            DisplayStart = 0; 
+ 936   5                                            MenuChoose(); 
+ 937   5                                                      }
+ 938   4                                              }  
+ 939   3                                              if(RUN_State==RUN_Reset)return ;
+ 940   3                                              
+ 941   3                                              /*
+ 942   3                                              if ((MenuPoint[UserChoose].Subs) != NullSubs)
+ 943   3                                              { 
+ 944   3                                      (*MenuPoint[UserChoose].Subs)();                   //指向执行函数
+ 945   3                                  } 
+ 946   3                                  if (MenuPoint[UserChoose].ChildrenMenus != &Menu_Null)
+ 947   3                                              { 
+ 948   3                                      MenuPoint    = MenuPoint[UserChoose].ChildrenMenus;  //指向子菜单 
+ 949   3                                                      Option           = UserChoose;
+ 950   3                                      UserChoose       = 0; 
+ 951   3                                      DisplayStart = 0; 
+ 952   3                                  } 
+ 953   3                                              */
+ 954   3                              break;
+ 955   3                                      case Enter|KEY_LONG:    
+ 956   3                                          if(MenuPoint[UserChoose].ChildrenMenus == Fun_Children){
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 18  
+
+ 957   4                                         //Menulayer_Choose();
+ 958   4                                                 //MenuPoint = Password_Update;                       
+ 959   4                                         //UserChoose          = 0; 
+ 960   4                                         //DisplayStart  = 0; 
+ 961   4                                          }
+ 962   3                                              else return ;
+ 963   3                                      break;
+ 964   3                                      case Esc|KEY_UP:
+ 965   3      /*********************************************************************************************/
+ 966   3                                              if(RUN_State==RUN_AutoTest)break;
+ 967   3                                              if(MenuPoint[UserChoose].FlashMark==_FlashMode){
+ 968   4                                                 //LCM_Clr();
+ 969   4                                              }
+ 970   3                                              if (MenuPoint[0].ParentMenus != &Menu_Null){                             
+ 971   4                                          MenuPoint = MenuPoint[0].ParentMenus;               
+ 972   4                                          UserChoose   = 0; 
+ 973   4                                          DisplayStart = 0; 
+ 974   4                                          MenuChoose();
+ 975   4                                  }
+ 976   3                                              else{
+ 977   4                                                      UserChoose++;
+ 978   4                                                  if (UserChoose == MaxItems){
+ 979   5                                                         UserChoose = 0;
+ 980   5                                                  }
+ 981   4                                              }  
+ 982   3                              break;
+ 983   3                                  case EscLONG:
+ 984   3                                                 EscLongNum=EscLongNum;
+ 985   3                                                 return ;     
+ 986   3                              default :return ;                               
+ 987   3                              } 
+ 988   2      
+ 989   2                        if(MenuPoint[0].MenuCount<UserChoose)UserChoose =0;
+ 990   2      
+ 991   2                        if((UserChoose <DisplayStart) || (UserChoose >(DisplayStart + (LCD1602MaxDisplaYLinE-1) ))){
+ 992   3                                 DisplayStart = UserChoose;
+ 993   3                              }
+ 994   2                         
+ 995   2                         MenuShow();          
+ 996   2                      }
+ 997   1                      
+ 998   1                      else if((MenuPoint[UserChoose].FlashMark == _FlashMode))
+ 999   1                      {
+1000   2                        if(FlashNum++<BackMenuTime){
+1001   3                               if((MenuPoint[UserChoose].FlashMark == _FlashMode)){             
+1002   4                                switch(DmxMark++)
+1003   4                            {
+1004   5                             case 20:
+1005   5                             pSEG=&SEGMenu_Buf;
+1006   5                                 break;
+1007   5                             case 40:
+1008   5                             DmxMark=0;
+1009   5                                 pSEG=&SEGMenu_aBuf;
+1010   5                             break;
+1011   5                             default:break;
+1012   5                            }                   
+1013   4                               }
+1014   3                        } 
+1015   2                        else if(RUN_State==RUN_Normal){
+1016   3                              FlashNum=0;
+1017   3                              if (MenuPoint[0].ParentMenus != &Menu_Null){                             
+1018   4                                         MenuPoint = MenuPoint[0].ParentMenus;                
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 19  
+
+1019   4                                         UserChoose    = 0; 
+1020   4                                         DisplayStart = 0; 
+1021   4                                         Menulayer_Choose();
+1022   4                                                 DisplayStart = UserChoose;   
+1023   4                          }
+1024   3                              else{
+1025   4                                MenuPoint = MainMenu; 
+1026   4                              } 
+1027   3                              
+1028   3                          if ((UserChoose <DisplayStart) || (UserChoose >(DisplayStart + (LCD1602MaxDisplaYLinE-1) ))){
+1029   4                                 DisplayStart = UserChoose;
+1030   4                              }
+1031   3                              //SystemShow();
+1032   3                              MenuShow();
+1033   3                        }             
+1034   2                      }
+1035   1                      else if(0 == Memory_Struct.Memory_LED){
+1036   2                        if(BackLightNum){
+1037   3                          if(BackLightNum++>BackLightTime){ //5S=20MS*
+1038   4                            BackLightNum=0;
+1039   4      //                        if((DMX_RegStructure.DMX_SIGNAL_MARK>300)&&(SYS_StateBuf==SYS_Dmx)){LCM_LIGHT_ON;}
+1040   4      //                        else if((SYS_StateBuf==SYS_Dmx)&&(SYS_State==SYS_Slave)){LCM_LIGHT_ON;}
+1041   4      //                        else 
+1042   4                                {
+1043   5                                      LCM_LIGHT_OFF;
+1044   5                                }
+1045   4                          }
+1046   3                        }     
+1047   2                      }
+1048   1                      if((SystemNum)&&(RUN_State==RUN_Normal)){
+1049   2                        if(SystemNum++>BackSystemTime*2/3){                    
+1050   3                               SystemNum=0;   
+1051   3                               if(MenuPoint[0].MenuCount<UserChoose)UserChoose =0;
+1052   3      
+1053   3                               if ((UserChoose <DisplayStart) || (UserChoose >(DisplayStart + (LCD1602MaxDisplaYLinE-1) ))){
+1054   4                                 DisplayStart = UserChoose;
+1055   4                               }
+1056   3                         
+1057   3                           MenuShow();
+1058   3                        }
+1059   2                      }
+1060   1                      
+1061   1                      
+1062   1      }
+1063          uint8_t MainNormal(void){
+1064   1              if(MenuPoint == &MainMenu){
+1065   2                      return 1;
+1066   2              }
+1067   1      return 0;
+1068   1      }
+1069          
+1070          
+1071          #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   5131    ----
+   CONSTANT SIZE    =    932    ----
+   XDATA SIZE       =     30    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     18    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.00   MENU                                                                  07/01/2019 15:07:33 PAGE 20  
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

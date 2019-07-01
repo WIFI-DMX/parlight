@@ -1,0 +1,18 @@
+".\Output\main.obj",
+".\Output\Time2.obj",
+".\Output\task_51.obj",
+".\Output\led.obj",
+".\Output\menu.obj",
+".\Output\Pwm.obj",
+".\Output\UART0_mode_3.obj",
+".\Output\IAP_BYTE.obj",
+".\Output\menu_fun_seg.obj",
+".\Output\wx_i2c_51.obj",
+".\Output\usart_n76.obj",
+".\Output\Tm1618_n76.obj",
+".\Output\uled_n76.obj",
+".\Output\Common.obj",
+".\Output\STARTUP.obj" 
+TO ".\Output\PWM" 
+PRINT(".\LST\PWM.m51") RAMSIZE(256) 
+DISABLEWARNING (16) 

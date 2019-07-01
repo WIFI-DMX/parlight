@@ -1,0 +1,197 @@
+C51 COMPILER V9.00   TM1618                                                                12/11/2018 17:10:33 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE TM1618
+OBJECT MODULE PLACED IN .\Output\Tm1618.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE drv\Tm1618.c OPTIMIZE(0,SPEED) BROWSE INCDIR(.\Include;.\Code;.\drv;..\..\a
+                    -pp\drive) DEFINE(FOSC_160000) DEBUG OBJECTEXTEND PRINT(.\LST\Tm1618.lst) OBJECT(.\Output\Tm1618.obj)
+
+line level    source
+
+   1          /**********************************************************************************/
+   2          #include "main.h"
+   3          
+   4          xdata SEG_TypeDef SEGMenu_Buf={
+   5                          LED__,LED__,LED__,LED__,LED_PN,0,1,   
+   6          };
+   7          xdata SEG_TypeDef SEGMenu_aBuf={
+   8                          LED_off,LED_off,LED_off,LED_off,LED_PN,1,1,   
+   9          };
+  10          pSEG_TypeDef pSEG=&SEGMenu_Buf;
+  11          
+  12          /* E DCBA        HG     F
+  13          0001 1111  0011 1000
+  14          */
+  15          uint8_t code TM1618_[][2]=
+  16          {
+  17          /*0，        1，         2，         3，        4，         5，         6，         7，         8，       
+             -   9           LED_off    LED_point   */
+  18          {0x1f,0x08},{0x06,0x00},{0x1b,0x10},{0x0f,0x10},{0x06,0x18},{0x0d,0x18},{0x1d,0x18},{0x07,0x00},{0x1f,0x18
+             -},{0x0f,0x18},{0x00,0x00},{0x00,0x20},
+  19          /*A ,        u,          t           o           -           d           r           g           b,       
+             -    W          S            L         */
+  20          {0x17,0x18},{0x1c,0x00},{0x18,0x18},{0x1c,0x10},{0x00,0x10},{0x1e,0x10},{0x10,0x10},{0x0f,0x18},{0x1c,0x18
+             -},{0x1E,0x08},{0x0d,0x18},{0x18,0x08},
+  21          /*C,         e           U           n           F  ,        p           I          O            h        
+             -  H           N.         */
+  22          {0x19,0x08},{0x19,0x18},{0x1E,0x08},{0x14,0x10},{0x11,0x18},{0x13,0x18},{0x06,0x00},{0x1f,0x08},{0x14,0x18
+             -},{0x16,0x18},{0x17,0x08},
+  23          /*a           E           c,           N,          Y,          度*/
+  24          {0x1f,0x10},{0x19,0x18},{0x19,0x08},{0x17,0x08},{0x0E,0x18},{0x03,0x18},
+  25          }; 
+  26          //4位8段模式下，共阴数码管0-9的编码
+  27          xdata uint8_t TM1618_KEY[3]={0}; 
+  28          
+  29          void TM1618_KeyInit(void){
+  30   1      
+  31   1      }
+  32          
+  33          /*********I2C延时***********/
+  34          void TM1618_Wait(uint8_t xdata nCount){   
+  35   1              for(; nCount != 0; nCount--);
+  36   1      }
+  37          
+  38          /**************************************************************/
+  39          //功能：向TM1618发送8位数据
+  40          /**************************************************************/
+  41          void TM1618_Send8bit(uint8_t ByteData)
+  42          {
+  43   1              uint8_t i;
+  44   1              for(i=0;i<8;i++){
+  45   2                      if(ByteData&0x01){
+  46   3                              TM1618_DIO_SET;
+  47   3                      }
+  48   2                      else{
+C51 COMPILER V9.00   TM1618                                                                12/11/2018 17:10:33 PAGE 2   
+
+  49   3                              TM1618_DIO_CLR;
+  50   3                      }
+  51   2                      TM1618_CLK_CLR;
+  52   2                      TM1618_Wait(1);
+  53   2                      TM1618_CLK_SET;
+  54   2                      ByteData=ByteData>>1;
+  55   2              }
+  56   1              TM1618_Wait(1);
+  57   1      }
+  58          /**************************************************************/
+  59          //功能：向TM1618发送命令
+  60          /**************************************************************/
+  61          void TM1618_SendCmd(uint8_t ByteData)
+  62          {
+  63   1              TM1618_STB_SET;
+  64   1              TM1618_Wait(10);
+  65   1              TM1618_STB_CLR;
+  66   1              TM1618_Wait(10);
+  67   1              TM1618_Send8bit(ByteData);
+  68   1              TM1618_Wait(10);
+  69   1      }
+  70          /**************************************************************/
+  71          //功能：读取按键值并存入KEY[]数组，从低字节开始，从低位开始
+  72          /**************************************************************/
+  73          void TM1618_ReadKey(void)
+  74          {
+  75   1              uint8_t i,j;
+  76   1              TM1618_SendCmd(0x42); 
+  77   1              TM1618_DIO_SET; 
+  78   1              for(j=0;j<2;j++){
+  79   2                      for(i=0;i<8;i++){
+  80   3                              TM1618_KEY[j]=TM1618_KEY[j]>>1;
+  81   3                              TM1618_CLK_CLR;
+  82   3                              TM1618_CLK_SET;
+  83   3                              if(TM1618_DIO_READ){
+  84   4                                      TM1618_KEY[j]=TM1618_KEY[j]|0X80;
+  85   4                              }
+  86   3                      }
+  87   2              }
+  88   1              TM1618_STB_SET;
+  89   1      }
+  90          
+  91          void TM1618_DisplayOFF(void){
+  92   1              TM1618_SendCmd(0x00); 
+  93   1              TM1618_SendCmd(0x40);
+  94   1              TM1618_SendCmd(0xc0); 
+  95   1              TM1618_Send8bit(TM1618_[LED_off][0]);   
+  96   1              TM1618_Send8bit(TM1618_[LED_off][1]);
+  97   1              TM1618_Send8bit(TM1618_[LED_off][0]);
+  98   1              TM1618_Send8bit(TM1618_[LED_off][1]);
+  99   1              TM1618_Send8bit(TM1618_[LED_off][0]);
+ 100   1              TM1618_Send8bit(TM1618_[LED_off][1]);
+ 101   1              TM1618_Send8bit(TM1618_[LED_off][0]);
+ 102   1              TM1618_Send8bit(TM1618_[LED_off][1]);
+ 103   1              TM1618_SendCmd(0x8A); 
+ 104   1              TM1618_STB_SET;
+ 105   1      }
+ 106          
+ 107          void TM1618_Display(void){
+ 108   1              if(LCDDisplight == 0){
+ 109   2                      TM1618_DisplayOFF();
+ 110   2                      return;
+C51 COMPILER V9.00   TM1618                                                                12/11/2018 17:10:33 PAGE 3   
+
+ 111   2              }
+ 112   1              TM1618_SendCmd(0x00); 
+ 113   1              TM1618_SendCmd(0x40);
+ 114   1              TM1618_SendCmd(0xc0); 
+ 115   1              TM1618_Send8bit(TM1618_[pSEG->data1][0]);
+ 116   1              if(pSEG->Point&LED_P1){
+ 117   2                      TM1618_Send8bit(TM1618_[pSEG->data1][1]|0x20);
+ 118   2              }
+ 119   1              else{
+ 120   2                      TM1618_Send8bit(TM1618_[pSEG->data1][1]);
+ 121   2              }
+ 122   1              TM1618_Send8bit(TM1618_[pSEG->data2][0]);
+ 123   1              if(pSEG->Point&LED_P2){
+ 124   2                      TM1618_Send8bit(TM1618_[pSEG->data2][1]|0x20);
+ 125   2              }
+ 126   1              else{
+ 127   2                      TM1618_Send8bit(TM1618_[pSEG->data2][1]);
+ 128   2              }
+ 129   1              
+ 130   1              TM1618_Send8bit(TM1618_[pSEG->data3][0]);
+ 131   1              if(pSEG->Point&LED_P3){
+ 132   2                      TM1618_Send8bit(TM1618_[pSEG->data3][1]|0x20);
+ 133   2              }
+ 134   1              else{
+ 135   2                      TM1618_Send8bit(TM1618_[pSEG->data3][1]);
+ 136   2              }
+ 137   1              
+ 138   1              TM1618_Send8bit(TM1618_[pSEG->data4][0]);
+ 139   1              if(pSEG->Point&LED_P4){
+ 140   2                      TM1618_Send8bit(TM1618_[pSEG->data4][1]|0x20);
+ 141   2              }
+ 142   1              else{
+ 143   2                      TM1618_Send8bit(TM1618_[pSEG->data4][1]);
+ 144   2              }        
+ 145   1              
+ 146   1              TM1618_SendCmd(0x8A);
+ 147   1              TM1618_STB_SET;
+ 148   1      }       
+ 149          
+ 150          void TM1618_Update(uint8_t xdata ByteData1,uint8_t xdata ByteData2,uint8_t xdata ByteData3,uint8_t xdata B
+             -yteData4,uint8_t xdata ByteDataP){
+ 151   1              pSEG->data1=ByteData1;
+ 152   1              pSEG->data2=ByteData2;
+ 153   1              pSEG->data3=ByteData3;
+ 154   1              pSEG->data4=ByteData4;
+ 155   1              pSEG->Point=ByteDataP;
+ 156   1      
+ 157   1              TM1618_Display();
+ 158   1      }
+ 159          
+ 160          /******************* (C) COPYRIGHT 2013 *****END OF FILE****/
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    885    ----
+   CONSTANT SIZE    =     82    ----
+   XDATA SIZE       =     23    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     14    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.00   TM1618                                                                12/11/2018 17:10:33 PAGE 4   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

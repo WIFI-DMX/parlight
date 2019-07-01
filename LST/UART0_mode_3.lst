@@ -1,0 +1,173 @@
+C51 COMPILER V9.00   UART0_MODE_3                                                          07/01/2019 15:07:34 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE UART0_MODE_3
+OBJECT MODULE PLACED IN .\Output\UART0_mode_3.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\UART0_mode_3.c OPTIMIZE(0,SPEED) BROWSE INCDIR(.\Include;.\Code;.\drv;
+                    -..\..\app\drive) DEFINE(FOSC_160000) DEBUG OBJECTEXTEND PRINT(.\LST\UART0_mode_3.lst) OBJECT(.\Output\UART0_mode_3.obj)
+
+line level    source
+
+   1          /*--------------------------------------------------------------------------------------------------------
+             --*/
+   2          /*                                                                                                        
+             - */
+   3          /* Copyright(c) 2016 Nuvoton Technology Corp. All rights reserved.                                        
+             - */
+   4          /*                                                                                                        
+             - */
+   5          /*--------------------------------------------------------------------------------------------------------
+             --*/
+   6          
+   7          //********************************************************************************************************
+             -***
+   8          //  Nuvoton Technoledge Corp. 
+   9          //  Website: http://www.nuvoton.com
+  10          //  E-Mail : MicroC-8bit@nuvoton.com
+  11          //  Date   : Apr/21/2016
+  12          //********************************************************************************************************
+             -***
+  13          
+  14          //********************************************************************************************************
+             -***
+  15          //  File Function: N76E003 UART-0 Mode3 demo code
+  16          //********************************************************************************************************
+             -***
+  17          
+  18          #include "main.h"
+  19          
+  20          #define BUFFER_SIZE             16
+  21           //WIFI-DMX.COM
+  22          xdata UINT8  UART_BUFFER[BUFFER_SIZE],temp,dataxx;
+  23          xdata UINT16 u16CNT=0,u16CNT1=0;
+  24          bit riflag;
+  25          xdata uint8_t D485CRC,DMXCRC,DMXCRC_Slave,Priority;
+  26          
+  27          /**
+  28           * FUNCTION_PURPOSE: serial interrupt, echo received data.
+  29           * FUNCTION_INPUTS: P3.0(RXD) serial input
+  30           * FUNCTION_OUTPUTS: P3.1(TXD) serial output
+  31           */
+  32          #if 0
+              void serial_IT(void) interrupt 4 
+              {
+                  if (RI) 
+                  {                                       /* if reception occur */
+                      clr_RI;                             /* clear reception flag for next reception */
+                      UART_BUFFER[u16CNT] = SBUF;
+                      u16CNT ++;
+                                        if(u16CNT >= 6)
+                                              riflag =1;
+                  }
+                  if(TI)
+                  {
+                      clr_TI;                             /* if emission occur */
+C51 COMPILER V9.00   UART0_MODE_3                                                          07/01/2019 15:07:34 PAGE 2   
+
+                  }
+              }
+              #else
+  49          void serial_IT(void) interrupt 4 
+  50          {
+  51   1          DMX512_Receive(&DMX_RegStructure,&DMX_Reg,1);
+  52   1      }
+  53          #endif
+  54          
+  55          /*----------------------------
+  56          Send a byte data to UART
+  57          Input: dat (data to be sent)
+  58          Output:None
+  59          ----------------------------*/
+  60          void SendAddress(uint8_t dat)
+  61          {
+  62   1          TB8  = 0;            
+  63   1          SBUF = dat;             //Send data to UART buffer
+  64   1      }
+  65          /*----------------------------
+  66          Send a byte data to UART
+  67          Input: dat (data to be sent)
+  68          Output:None
+  69          ----------------------------*/
+  70          void SendData(uint8_t dat)
+  71          {
+  72   1          TB8  = 1;            
+  73   1          SBUF = dat;             //Send data to UART buffer
+  74   1      }
+  75          
+  76          void USART_DMXSendPacket(void)
+  77          {
+  78   1              if((SYS_StateBuf==SYS_Dmx)&&(Memory_Struct.Memory_NoDMXStatus==0)&&(RUN_State!=RUN_AutoTest))return;
+  79   1              
+  80   1              if((DMX_Reg.DMXTransmitFinish)&&(DMX_RegStructure.DMX_SIGNAL_MARK>=300)) 
+  81   1              {
+  82   2                      DMX_RegStructure.DMXTransmitNow[D485_StobValue]=LED_RegStructure.StobValue;
+  83   2                      DMX_RegStructure.DMXTransmitNow[D485_StobState]=LED_RegStructure.LedStobState;
+  84   2                      
+  85   2                      DMX512_Master;
+  86   2                      DMX_Reg.DMXTransmitFinish=0;
+  87   2                      DMX_Reg.DMXTxCounter=0;
+  88   2                      DMXCRC=0;
+  89   2                      
+  90   2                      SendAddress(DMXAutoReceiveMark);
+  91   2              }
+  92   1      }
+  93          
+  94          /*********************************************************************************************************
+             -***
+  95          *    Main function 
+  96          **********************************************************************************************************
+             -**/
+  97          void UART_Init(void)
+  98          {
+  99   1      //      UINT8 i;
+ 100   1         
+ 101   1          P06_Quasi_Mode;                                                     //Set UART GPIO are Quasi Mode
+ 102   1              P07_Quasi_Mode;
+ 103   1          InitialUART0_Timer3(250000+1);            /* 115200 Baud Rate from timer1*/
+ 104   1              
+ 105   1       //   SCON = 0xD2;                                                                                                              // Special setting the mode 3 
+C51 COMPILER V9.00   UART0_MODE_3                                                          07/01/2019 15:07:34 PAGE 3   
+
+ 106   1          
+ 107   1          set_ES;                                 //enable UART interrupt
+ 108   1          set_EA;                                 //enable global interrupt
+ 109   1       //   clr_TB8;
+ 110   1      //    Send_Data_To_UART0(0x53);                                                         //Send "start" ascii code show reset initial status
+ 111   1      //        Send_Data_To_UART0(0x74);
+ 112   1      //        Send_Data_To_UART0(0x61);
+ 113   1      //        Send_Data_To_UART0(0x72);
+ 114   1      //        Send_Data_To_UART0(0x74);
+ 115   1      //              P10 = 1;
+ 116   1      //      Timer0_Delay1ms(500);
+ 117   1      /* 
+ 118   1          while(1);
+ 119   1                      {
+ 120   1                              if (riflag)
+ 121   1                              {
+ 122   1                                      for(i=0; i<u16CNT; i++)
+ 123   1                                      {
+ 124   1                                      temp = UART_BUFFER[i];                                                                                          //This part send the receive data from RXD to TXD 
+ 125   1                                      Send_Data_To_UART0(temp);
+ 126   1                                      }
+ 127   1      
+ 128   1                                      riflag = 0;
+ 129   1                                      u16CNT = 0;
+ 130   1                              }
+ 131   1                      }
+ 132   1      */      
+ 133   1      }
+ 134          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    221    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     26    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

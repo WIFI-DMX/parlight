@@ -1,0 +1,224 @@
+C51 COMPILER V9.00   PWM                                                                   07/01/2019 15:07:34 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PWM
+OBJECT MODULE PLACED IN .\Output\Pwm.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\Pwm.c OPTIMIZE(0,SPEED) BROWSE INCDIR(.\Include;.\Code;.\drv;..\..\app
+                    -\drive) DEFINE(FOSC_160000) DEBUG OBJECTEXTEND PRINT(.\LST\Pwm.lst) OBJECT(.\Output\Pwm.obj)
+
+line level    source
+
+   1          /*--------------------------------------------------------------------------------------------------------
+             --*/
+   2          /*                                                                                                        
+             - */
+   3          /* Copyright(c) 2016 Nuvoton Technology Corp. All rights reserved.                                        
+             - */
+   4          /*                                                                                                        
+             - */
+   5          /*--------------------------------------------------------------------------------------------------------
+             --*/
+   6          
+   7          //********************************************************************************************************
+             -***
+   8          //  Nuvoton Technoledge Corp. 
+   9          //  Website: http://www.nuvoton.com
+  10          //  E-Mail : MicroC-8bit@nuvoton.com
+  11          //  Date   : Apr/21/2016
+  12          //********************************************************************************************************
+             -***
+  13           //WIFI-DMX.COM
+  14          //********************************************************************************************************
+             -***
+  15          //  File Function: N76E003 PWM Output demo code
+  16          //********************************************************************************************************
+             -***
+  17          #include "main.h"
+  18          
+  19          //*****************  The Following is in define in Fucntion_define.h  ***************************
+  20          //****** Always include Function_define.h call the define you want, detail see main(void) *******
+  21          //***********************************************************************************************
+  22          #if 0 
+              ////--------- PMW clock source select define ---------------------
+              //#define               PWM_CLOCK_FSYS                                  CKCON&=0xBF
+              //#define               PWM_CLOCK_TIMER1                                CKCON|=0x40
+              ////--------- PWM clock devide define ----------------------------
+              //#define               PWM_CLOCK_DIV_2                                 PWMCON1|=0x01;PWMCON1&=0xF9
+              //#define               PWM_CLOCK_DIV_4                                 PWMCON1|=0x02;PWMCON1&=0xFA
+              //#define               PWM_CLOCK_DIV_8                                 PWMCON1|=0x03;PWMCON1&=0xFB
+              //#define               PWM_CLOCK_DIV_16                                PWMCON1|=0x04;PWMCON1&=0xFC
+              //#define               PWM_CLOCK_DIV_32                                PWMCON1|=0x05;PWMCON1&=0xFD
+              //#define               PWM_CLOCK_DIV_64                                PWMCON1|=0x06;PWMCON1&=0xFE
+              //#define               PWM_CLOCK_DIV_128                               PWMCON1|=0x07
+              ////--------- PWM I/O select define ------------------------------
+              //#define               PWM5_P15_OUTPUT_ENABLE          BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;SFRS|=0x01;PIOCON1|=0x20;TA=0xAA;TA=0x5
+             -5;SFRS&=0xFE;EA=BIT_TMP                               //P1.5 as PWM5 output enable
+              //#define               PWM5_P03_OUTPUT_ENABLE          PIOCON0|=0x20                                                                                                                                                                                                           //P0.3 as PWM5
+              //#define               PWM4_P01_OUTPUT_ENABLE          PIOCON0|=0x10                                                                                                                                                                                                           //P0.1 as PWM4 output enable
+              //#define               PWM3_P04_OUTPUT_ENABLE          BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;SFRS|=0x01;PIOCON1|=0x08;TA=0xAA;TA=0x5
+             -5;SFRS&=0xFE;EA=BIT_TMP                               //P0.4 as PWM3 output enable
+              //#define               PWM3_P00_OUTPUT_ENABLE          PIOCON0|=0x08                                                                                                                                                                                                           //P0.0 as PWM3 
+              //#define               PWM2_P05_OUTPUT_ENABLE          BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;SFRS|=0x01;PIOCON1|=0x04;TA=0xAA;TA=0x5
+             -5;SFRS&=0xFE;EA=BIT_TMP                               //P1.0 as PWM2 output enable
+              //#define               PWM2_P10_OUTPUT_ENABLE          PIOCON0|=0x04                                                                                                                                                                                                           //P1.0 as PWM2
+              //#define               PWM1_P14_OUTPUT_ENABLE          BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;SFRS|=0x01;PIOCON1|=0x02;TA=0xAA;TA=0x5
+C51 COMPILER V9.00   PWM                                                                   07/01/2019 15:07:34 PAGE 2   
+
+             -5;SFRS&=0xFE;EA=BIT_TMP                               //P1.4 as PWM1 output enable
+              //#define               PWM1_P11_OUTPUT_ENABLE          PIOCON0|=0x02                                                                                                                                                                                                           //P1.1 as PWM1 
+              //#define               PWM0_P12_OUTPUT_ENABLE          PIOCON0|=0x01                                                                                                                                                                                                           //P1.2 as PWM0 output enable
+              //#define       ALL_PWM_OUTPUT_ENABLE                   PIOCON0=0xFF;PIOCON1=0xFF
+              //#define               PWM5_P15_OUTPUT_DISABLE         BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;SFRS|=0x01;PIOCON1&=0xDF;TA=0xAA;TA=0x
+             -55;SFRS&=0xFE;EA=BIT_TMP                              //P1.5 as PWM5 output disable
+              //#define               PWM5_P03_OUTPUT_DISABLE         PIOCON0&=0xDF                                                                                                                                                                                                           //P0.3 as PWM5
+              //#define               PWM4_P01_OUTPUT_DISABLE         PIOCON0&=0xEF                                                                                                                                                                                                           //P0.1 as PWM4 output disable
+              //#define               PWM3_P04_OUTPUT_DISABLE         BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;SFRS|=0x01;PIOCON1&=0xF7;TA=0xAA;TA=0x
+             -55;SFRS&=0xFE;EA=BIT_TMP                              //P0.4 as PWM3 output disable
+              //#define               PWM3_P00_OUTPUT_DISABLE         PIOCON0&=0xF7                                                                                                                                                                                                           //P0.0 as PWM3 
+              //#define               PWM2_P05_OUTPUT_DISABLE         BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;SFRS|=0x01;PIOCON1&=0xFB;TA=0xAA;TA=0x
+             -55;SFRS&=0xFE;EA=BIT_TMP                              //P1.0 as PWM2 output disable
+              //#define               PWM2_P10_OUTPUT_DISABLE         PIOCON0&=0xFB                                                                                                                                                                                                           //P1.0 as PWM2
+              //#define               PWM1_P14_OUTPUT_DISABLE         BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;SFRS|=0x01;PIOCON1&=0xFD;TA=0xAA;TA=0x
+             -55;SFRS&=0xFE;EA=BIT_TMP                              //P1.4 as PWM1 output disable
+              //#define               PWM1_P11_OUTPUT_DISABLE         PIOCON0&=0xFD                                                                                                                                                                                                           //P1.1 as PWM1 
+              //#define               PWM0_P12_OUTPUT_DISABLE         PIOCON0&=0xFE                                                                                                                                                                                                           //P1.2 as PWM0 output disable
+              //#define       ALL_PWM_OUTPUT_DISABLE          PIOCON0=0x00;PIOCON1=0x00
+              ////--------- PWM I/O Polarity Control ---------------------------
+              //#define               PWM5_OUTPUT_INVERSE                     PNP|=0x20                               
+              //#define               PWM4_OUTPUT_INVERSE                     PNP|=0x10                               
+              //#define               PWM3_OUTPUT_INVERSE                     PNP|=0x08                               
+              //#define               PWM2_OUTPUT_INVERSE                     PNP|=0x04                               
+              //#define               PWM1_OUTPUT_INVERSE                     PNP|=0x02                               
+              //#define               PWM0_OUTPUT_INVERSE                     PNP|=0x01                               
+              //#define               PWM_OUTPUT_ALL_INVERSE  PNP=0xFF
+              //#define               PWM5_OUTPUT_NORMAL                      PNP&=0xDF                               
+              //#define               PWM4_OUTPUT_NORMAL                      PNP&=0xEF                               
+              //#define               PWM3_OUTPUT_NORMAL                      PNP&=0xF7                               
+              //#define               PWM2_OUTPUT_NORMAL                      PNP&=0xFB                               
+              //#define               PWM1_OUTPUT_NORMAL                      PNP&=0xFD                               
+              //#define               PWM0_OUTPUT_NORMAL                      PNP&=0xFE                               
+              //#define               PWM_OUTPUT_ALL_NORMAL           PNP=0x00
+              ////--------- PWM type define ------------------------------------
+              //#define               PWM_EDGE_TYPE                                           PWMCON1&=~SET_BIT4
+              //#define               PWM_CENTER_TYPE                                 PWMCON1|=SET_BIT4
+              ////--------- PWM mode define ------------------------------------
+              //#define               PWM_IMDEPENDENT_MODE            PWMCON1&=0x3F
+              //#define               PWM_COMPLEMENTARY_MODE  PWMCON1|=0x40;PWMCON1&=0x7F
+              //#define               PWM_SYNCHRONIZED_MODE           PWMCON1|=0x80;PWMCON1&=0xBF
+              //#define       PWM_GP_MODE_ENABLE                      PWMCON1|=0x20
+              //#define               PWM_GP_MODE_DISABLE                     PWMCON1&=0xDF
+              ////--------- PMW interrupt setting ------------------------------
+              //#define               PWM_FALLING_INT                                 PWMCON0&=0xF3
+              //#define               PWM_RISING_INT                                  PWMCON0|=0x04;PWMCON0&=0xF7
+              //#define               PWM_CENTRAL_POINT_INT           PWMCON0|=0x08;PWMCON0&=0xFB
+              //#define               PWM_PERIOD_END_INT                      PWMCON0|=0x0C
+              ////--------- PWM interrupt pin select ---------------------------
+              //#define               PWM_INT_PWM0                                            PWMCON0&=0xFC
+              //#define               PWM_INT_PWM2                                            PWMCON0|=0x01;PWMCON0&=0xFD
+              //#define               PWM_INT_PWM4                                            PWMCON0|=0x02;PWMCON0&=0xFE
+              //#define               PWM_INT_PMW6                                            PWMCON0|=0x03
+              ////--------- PWM Dead time setting ------------------------------
+              //#define       PWM45_DEADTIME_ENABLE                   BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;PDTEN|=0x04;EA=BIT_TMP
+              //#define       PWM34_DEADTIME_ENABLE                   BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;PDTEN|=0x02;EA=BIT_TMP
+              //#define       PWM01_DEADTIME_ENABLE                   BIT_TMP=EA;EA=0;TA=0xAA;TA=0x55;PDTEN|=0x01;EA=BIT_TMP
+              #endif
+  96          
+  97          void Pwm_Update(uint8_t state,uint16_t pwm){
+  98   1      //      clr_LOAD;
+  99   1              switch(state){
+C51 COMPILER V9.00   PWM                                                                   07/01/2019 15:07:34 PAGE 3   
+
+ 100   2                      case 0:
+ 101   2                      PWM0H = (pwm>>8)&0xff;                                  
+ 102   2                  PWM0L = (pwm>>0)&0xff;
+ 103   2                      break;
+ 104   2                      case 1:
+ 105   2                      PWM1H = (pwm>>8)&0xff;                                  
+ 106   2                  PWM1L = (pwm>>0)&0xff;
+ 107   2                      break;
+ 108   2                      case 2:
+ 109   2                      PWM2H = (pwm>>8)&0xff;                                  
+ 110   2                  PWM2L = (pwm>>0)&0xff;
+ 111   2                      break;
+ 112   2                      case 3:
+ 113   2                      PWM3H = (pwm>>8)&0xff;                                  
+ 114   2                  PWM3L = (pwm>>0)&0xff;
+ 115   2                      break;
+ 116   2                      case 4:
+ 117   2                      set_SFRPAGE;
+ 118   2                      PWM4H = (pwm>>8)&0xff;                                  
+ 119   2                  PWM4L = (pwm>>0)&0xff;
+ 120   2                      clr_SFRPAGE;
+ 121   2                      break;
+ 122   2                      case 5:
+ 123   2                      set_SFRPAGE;
+ 124   2                      PWM5H = (pwm>>8)&0xff;                                  
+ 125   2                  PWM5L = (pwm>>0)&0xff;
+ 126   2                      clr_SFRPAGE;
+ 127   2                      break;
+ 128   2                      default:break;
+ 129   2              }
+ 130   1              set_LOAD;       
+ 131   1      }
+ 132          
+ 133          void Pwm_Init(void)
+ 134          {       
+ 135   1              PWM0_P12_OUTPUT_ENABLE;
+ 136   1              PWM1_P11_OUTPUT_ENABLE;
+ 137   1              PWM2_P10_OUTPUT_ENABLE;
+ 138   1              PWM3_P00_OUTPUT_ENABLE;
+ 139   1              PWM4_P01_OUTPUT_ENABLE;
+ 140   1              PWM5_P03_OUTPUT_ENABLE;
+ 141   1      
+ 142   1              PWM_IMDEPENDENT_MODE;
+ 143   1      
+ 144   1              //PWM_CLOCK_DIV_8;
+ 145   1              PWMPH = (PWM_MAX>>8)&0xff;
+ 146   1              PWMPL = (PWM_MAX>>0)&0xff;
+ 147   1      
+ 148   1              /**********************************************************************
+ 149   1              PWM frequency = Fpwm/((PWMPH,PWMPL) + 1) <Fpwm = Fsys/PWM_CLOCK_DIV> 
+ 150   1                                              = (16MHz/8)/(0x7CF + 1)
+ 151   1                                              = 1KHz (1ms)
+ 152   1              ***********************************************************************/
+ 153   1              /**********************************************************************
+ 154   1              Special care about the PWM4H/PWM4L PWM5H/PWM5L register 
+ 155   1              in SFR page1
+ 156   1              ***********************************************************************/
+ 157   1                      
+ 158   1              Pwm_Update(0,PWM_INIT);
+ 159   1              Pwm_Update(1,PWM_INIT);
+ 160   1              Pwm_Update(2,PWM_INIT);
+ 161   1              Pwm_Update(3,PWM_INIT);
+C51 COMPILER V9.00   PWM                                                                   07/01/2019 15:07:34 PAGE 4   
+
+ 162   1              Pwm_Update(4,PWM_INIT);
+ 163   1              Pwm_Update(5,PWM_INIT);                                                                                 
+ 164   1              // PWM output inversly enable 
+ 165   1              //PWM2_OUTPUT_INVERSE;
+ 166   1              
+ 167   1              //-------- PWM start run--------------  
+ 168   1              set_PWMRUN;
+ 169   1      
+ 170   1              P12_PushPull_Mode;
+ 171   1              P11_PushPull_Mode;
+ 172   1              P10_PushPull_Mode;
+ 173   1              P00_PushPull_Mode;
+ 174   1              P01_PushPull_Mode;
+ 175   1              P03_PushPull_Mode;
+ 176   1      }
+ 177          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    347    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

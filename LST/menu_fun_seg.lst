@@ -1,0 +1,471 @@
+C51 COMPILER V9.00   MENU_FUN_SEG                                                          07/01/2019 15:07:34 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MENU_FUN_SEG
+OBJECT MODULE PLACED IN .\Output\menu_fun_seg.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE drv\menu_fun_seg.c OPTIMIZE(0,SPEED) BROWSE INCDIR(.\Include;.\Code;.\drv;.
+                    -.\..\app\drive) DEFINE(FOSC_160000) DEBUG OBJECTEXTEND PRINT(.\LST\menu_fun_seg.lst) OBJECT(.\Output\menu_fun_seg.obj)
+
+line level    source
+
+   1          #include "main.h"
+   2          
+   3           //WIFI-DMX.COM
+   4          
+   5          xdata Memory_TypeDef Memory_Struct=
+   6          {       
+   7                  0,0,Calibrations_N,Calibrations_N,Calibrations_N,Calibrations_N,Calibrations_N,Calibrations_N,0,1,
+             -0,50,_SlaveMode1,0,10,200,0,_2channel,1,1,1,1,1,0,0,_English,_Normal,_Auto_On,  
+   8          };
+   9          xdata LEDSEG_TypeDef LEDMenu_Buf=
+  10          {
+  11                          0x87,0xA3,0x8C,0xFF   
+  12          };
+  13          xdata LEDSEG_TypeDef LEDTemp_Buf=
+  14          {
+  15                          0,0,0,0   
+  16          };
+  17          
+  18          void Update_Clear(void){
+  19   1              Memory_Struct.Memory_Soud=0;
+  20   1              Memory_Struct.Memory_Stob=0;
+  21   1      
+  22   1              LED_RegStructure.PurpleLumValue=0;
+  23   1              LED_RegStructure.YellowLumValue=0;
+  24   1              LED_RegStructure.WhiteLumValue=0;
+  25   1              LED_RegStructure.BlueLumValue=0;
+  26   1              LED_RegStructure.GreenLumValue=0;
+  27   1              LED_RegStructure.RedLumValue=0;
+  28   1      
+  29   1              LedStobValueUpdate(Memory_Struct.Memory_Stob);
+  30   1      }
+  31          
+  32          void UpdateExitMain(void){
+  33   1          SystemNum=BackSystemTime-30;
+  34   1      }
+  35          
+  36          void UpdateDmxAddress(void){
+  37   1              DMX512_Slave;
+  38   1              SYS_State=SYS_Dmx;
+  39   1              SysBuf=SYS_State;SYS_StateBuf=SYS_State;
+  40   1              IIC_WriteAddress();
+  41   1      }
+  42          
+  43          void UpdateChanne(void){
+  44   1              IIC_WriteChan();
+  45   1      //      Led.DMXHclState=0;
+  46   1      }
+  47          
+  48          void UpdateChannel1(void){
+  49   1              Memory_Struct.Memory_Chan=_1channel;
+  50   1              UpdateChanne();
+  51   1      }
+  52          
+  53          void UpdateChannel2(void){
+C51 COMPILER V9.00   MENU_FUN_SEG                                                          07/01/2019 15:07:34 PAGE 2   
+
+  54   1              Memory_Struct.Memory_Chan=_2channel;
+  55   1              UpdateChanne();
+  56   1      }
+  57          
+  58          //void UpdateChannel3(void){
+  59          //      Memory_Struct.Memory_Chan=_3channel;
+  60          //      UpdateChanne();
+  61          //}
+  62          
+  63          //void UpdateChannel4(void){
+  64          //      Memory_Struct.Memory_Chan=_4channel;
+  65          //      IIC_WriteChan();                                                   
+  66          //      UpdateChanne();
+  67          //}
+  68          
+  69          void SlaveMode(void){
+  70   1              if(SYS_State!=SYS_Slave){
+  71   2                      Update_Clear();
+  72   2              }
+  73   1              SYS_State=SYS_Slave;
+  74   1              SysBuf=SYS_State;SYS_StateBuf=SYS_State;
+  75   1              DMX512_Slave;
+  76   1              
+  77   1              IIC_WriteSysState();    
+  78   1      }
+  79          
+  80          void Update_Slave1Mode(void){
+  81   1              Memory_Struct.Memory_Mode=_SlaveMode1;
+  82   1              SlaveMode();    
+  83   1      
+  84   1      }
+  85          //void Update_Slave2Mode(void){         
+  86          //      Memory_Struct.Memory_Mode=_SlaveMode2;
+  87          //      SlaveMode();
+  88          //}
+  89          
+  90          void Update_SoundOn(void){   
+  91   1              Memory_Struct.Memory_Soud=1;
+  92   1              LED_RegStructure.ChangValue=1;
+  93   1              LED_RegStructure.HclValue=0;
+  94   1              LED_RegStructure.FadeValue=0;
+  95   1              LED_RegStructure.StobValue=0;
+  96   1      
+  97   1              SYS_State=SYS_Soud;
+  98   1              SysBuf=SYS_State;SYS_StateBuf=SYS_State;
+  99   1      
+ 100   1              Update_Clear();
+ 101   1      
+ 102   1          IIC_WriteSoud();
+ 103   1              IIC_WriteSysState();
+ 104   1      }
+ 105          
+ 106          void Update_ResetYes(void){
+ 107   1      
+ 108   1              Reset_Mark=0;
+ 109   1              Temp_Reset=0;
+ 110   1              COLO_SIGNAL_MARK=1;
+ 111   1              DisplayStart     = 0;                        
+ 112   1              UserChoose       = 0;                            
+ 113   1              DisplayPoint     = 0;                             
+ 114   1              MaxItems         = 0;                     
+ 115   1              Option              = 0;   
+C51 COMPILER V9.00   MENU_FUN_SEG                                                          07/01/2019 15:07:34 PAGE 3   
+
+ 116   1              Option1             = 0;
+ 117   1              Task_Clear();
+ 118   1              Task_Cmd(&Task_st[TLedDMXFade],&Task_LedDMXFade,TaskEnable,Task_Null);
+ 119   1              RUN_State=RUN_Reset;
+ 120   1      //      DeviceInit(&DeviceInfoStruct);
+ 121   1      }
+ 122          
+ 123          void Update_ResetNo(void){      
+ 124   1      
+ 125   1      }  
+ 126          
+ 127          void Update_FactoryYes(void){
+ 128   1      
+ 129   1              Memory_Struct.Memory_Addr=1;
+ 130   1              Memory_Struct.Memory_Stob=0;
+ 131   1              Memory_Struct.Memory_Chan=_2channel;
+ 132   1              Memory_Struct.Memory_NoDMXStatus=0;       
+ 133   1      
+ 134   1      //      Memory_Struct.Memory_Dimmer=0;
+ 135   1      //      Memory_Struct.Memory_RefreshRate=1;
+ 136   1      //      Memory_Struct.Memory_Smooth=1;
+ 137   1      //      Memory_Struct.Memory_RAuto=_Auto_On;
+ 138   1      
+ 139   1      //    TIME_Prescaler(Prescaler_1);
+ 140   1              LED_RegStructure.RedLumValue=0;
+ 141   1          LED_RegStructure.GreenLumValue=0;
+ 142   1          LED_RegStructure.BlueLumValue=0;
+ 143   1      
+ 144   1          LED_RegStructure.WhiteLumValue=0;
+ 145   1          LED_RegStructure.YellowLumValue=0;
+ 146   1          LED_RegStructure.PurpleLumValue=0;
+ 147   1      
+ 148   1              Memory_Struct.Memory_LED=0;
+ 149   1              SYS_State=SYS_Dmx;
+ 150   1              SysBuf=SYS_State;SYS_StateBuf=SYS_State;
+ 151   1              Memory_Struct.Memory_BACKLED=10;
+ 152   1              Memory_Struct.Memory_Hcl=1;
+ 153   1              Memory_Struct.Memory_Soud=0;
+ 154   1              Memory_Struct.Memory_Mode=_SlaveMode1;
+ 155   1              Memory_Struct.Memory_Sose=200;
+ 156   1              LCM_LIGHT_ON;
+ 157   1              DMX512_Slave;
+ 158   1      //      Wireless=3;Wireless_L;
+ 159   1      
+ 160   1              IIC_WriteFactory();
+ 161   1              LedStobValueUpdate(Memory_Struct.Memory_Stob);
+ 162   1      
+ 163   1              PurpleLumValue=0;
+ 164   1              YellowLumValue=0;
+ 165   1              WhiteLumValue=0;
+ 166   1              BlueLumValue=0;
+ 167   1              GreenLumValue=0;
+ 168   1              RedLumValue=0;
+ 169   1              
+ 170   1              KeyBuf1=0xff,KeyBuf2=0xff;
+ 171   1      } 
+ 172          
+ 173          void Update_FactoryNo(void){    
+ 174   1      } 
+ 175          
+ 176          void Update_NoDMXStatusClose(void){
+ 177   1         if(Memory_Struct.Memory_NoDMXStatus)SYS_State=SYS_Dmx;
+C51 COMPILER V9.00   MENU_FUN_SEG                                                          07/01/2019 15:07:34 PAGE 4   
+
+ 178   1         Memory_Struct.Memory_NoDMXStatus=0;  
+ 179   1         IIC_WriteInverse();  
+ 180   1      }
+ 181          
+ 182          void Update_NoDMXStatusHold(void){  
+ 183   1         if(Memory_Struct.Memory_NoDMXStatus>1)SYS_State=SYS_Dmx;
+ 184   1         Memory_Struct.Memory_NoDMXStatus=1;
+ 185   1         IIC_WriteInverse();          
+ 186   1      }
+ 187          /*
+ 188          void Update_NoDMXStatusAuto(void){ 
+ 189             if(Memory_Struct.Memory_NoDMXStatus>1)SYS_State=SYS_Dmx;
+ 190             Memory_Struct.Memory_NoDMXStatus=2;
+ 191             IIC_WriteInverse();  
+ 192          }
+ 193          
+ 194          void Update_NoDMXStatusSound(void){
+ 195             if(Memory_Struct.Memory_NoDMXStatus>1)SYS_State=SYS_Dmx;
+ 196             Memory_Struct.Memory_NoDMXStatus=3;
+ 197             IIC_WriteInverse();  
+ 198          }
+ 199          */
+ 200          
+ 201          /*
+ 202          void Update_Dimmer0(void){
+ 203             Memory_Struct.Memory_Dimmer=0;
+ 204             IIC_WriteDimmer();   
+ 205          }
+ 206          
+ 207          void Update_Dimmer1(void){
+ 208             Memory_Struct.Memory_Dimmer=1;
+ 209             IIC_WriteDimmer();   
+ 210          }
+ 211          
+ 212          void Update_Dimmer2(void){
+ 213             Memory_Struct.Memory_Dimmer=2;
+ 214             IIC_WriteDimmer();   
+ 215          }
+ 216          
+ 217          void Update_Dimmer3(void){
+ 218             Memory_Struct.Memory_Dimmer=3;
+ 219             IIC_WriteDimmer();   
+ 220          }
+ 221          
+ 222          void Update_RefreshRate0(void){
+ 223             Memory_Struct.Memory_RefreshRate=0;
+ 224          //   TIME_Prescaler(Prescaler_0);
+ 225             IIC_WriteDimmer();   
+ 226          }
+ 227          
+ 228          void Update_RefreshRate1(void){
+ 229             Memory_Struct.Memory_RefreshRate=1;
+ 230          //   TIME_Prescaler(Prescaler_1);
+ 231             IIC_WriteDimmer();   
+ 232          }
+ 233          
+ 234          void Update_RefreshRate2(void){
+ 235             Memory_Struct.Memory_RefreshRate=2;
+ 236          //   TIME_Prescaler(Prescaler_2);
+ 237             IIC_WriteDimmer();   
+ 238          }
+ 239          
+C51 COMPILER V9.00   MENU_FUN_SEG                                                          07/01/2019 15:07:34 PAGE 5   
+
+ 240          void Update_RefreshRate3(void){
+ 241             Memory_Struct.Memory_RefreshRate=3;
+ 242          //   TIME_Prescaler(Prescaler_3);
+ 243             IIC_WriteDimmer();   
+ 244          }
+ 245          
+ 246          
+ 247          void Update_Smooth0(void){
+ 248             Memory_Struct.Memory_Smooth=0;
+ 249             IIC_WriteDimmer();   
+ 250          }
+ 251          
+ 252          void Update_Smooth1(void){
+ 253             Memory_Struct.Memory_Smooth=1;
+ 254             IIC_WriteDimmer();   
+ 255          }
+ 256          
+ 257          void Update_Smooth2(void){
+ 258             Memory_Struct.Memory_Smooth=2;
+ 259             IIC_WriteDimmer();   
+ 260          }
+ 261          
+ 262          void Update_Smooth3(void){
+ 263             Memory_Struct.Memory_Smooth=3;
+ 264             IIC_WriteDimmer();   
+ 265          }
+ 266          */
+ 267          
+ 268          /*
+ 269          void Update_Degree1(void){
+ 270             Memory_Struct.Memory_Degree=1;
+ 271             IIC_WriteInverse();          
+ 272          }
+ 273          
+ 274          void Update_Degree2(void){
+ 275             Memory_Struct.Memory_Degree=0;
+ 276             IIC_WriteInverse();          
+ 277          }
+ 278          
+ 279          void Update_Chinese(void){
+ 280             Memory_Struct.Memory_Language=_Chinese;
+ 281             IIC_WriteLanguage();         
+ 282          }
+ 283          
+ 284          void Update_English(void){
+ 285             Memory_Struct.Memory_Language=_English;
+ 286             IIC_WriteLanguage();         
+ 287          }
+ 288          
+ 289          void Update_RotaN(void){
+ 290             Memory_Struct.Memory_Rota=_Normal;
+ 291             Memory_Struct.Memory_RAuto=_Auto_Off;
+ 292             IIC_WriteRota();     
+ 293             KeyBuf1=0xff,KeyBuf2=0xff;
+ 294          }
+ 295          
+ 296          void Update_RotaR(void){
+ 297             Memory_Struct.Memory_Rota=_Rotate180;
+ 298             Memory_Struct.Memory_RAuto=_Auto_Off;
+ 299             IIC_WriteRota();     
+ 300             KeyBuf1=0xff,KeyBuf2=0xff;
+ 301          }
+C51 COMPILER V9.00   MENU_FUN_SEG                                                          07/01/2019 15:07:34 PAGE 6   
+
+ 302          
+ 303          void Update_RotaA(void){
+ 304             Memory_Struct.Memory_RAuto=_Auto_On;
+ 305             IIC_WriteRota();     
+ 306             KeyBuf1=0xff,KeyBuf2=0xff;
+ 307          }
+ 308          */
+ 309          /*
+ 310          void Update_SoundOff(void){
+ 311                  Memory_Struct.Memory_Soud=0;
+ 312                  DMX512_Slave;
+ 313                  SYS_State=SYS_Dmx;
+ 314                  SysBuf=SYS_State;SYS_StateBuf=SYS_State;        
+ 315                  IIC_WriteSoud();
+ 316                  IIC_WriteSysState();
+ 317                  Update_Clear();
+ 318          }
+ 319          */
+ 320          void Update_SoundSose(void){   
+ 321   1               IIC_WriteSose();   
+ 322   1      }
+ 323          
+ 324          void Update_BackLEDOn(void){
+ 325   1              Memory_Struct.Memory_LED=1;
+ 326   1              IIC_WriteLed();                 
+ 327   1      }
+ 328          
+ 329          void Update_BackLED(void){
+ 330   1              //Memory_Struct.Memory_LED=1;
+ 331   1              IIC_WriteLed();                 
+ 332   1      }
+ 333          
+ 334          void Update_BackLEDOff(void){
+ 335   1              Memory_Struct.Memory_LED=0;     
+ 336   1              IIC_WriteLed();                 
+ 337   1      }
+ 338          /******************************************************************************/
+ 339          
+ 340          void Update_ManuFunction(void){  
+ 341   1          IIC_WriteColoLumValue();
+ 342   1              IIC_WriteSysState();  
+ 343   1      }        
+ 344          
+ 345          void Update_CalibrationsDefaultFunction(void){  
+ 346   1          Memory_Struct.Memory_CalibrationsRed=Calibrations_N;
+ 347   1              Memory_Struct.Memory_CalibrationsGreen=Calibrations_N;
+ 348   1              Memory_Struct.Memory_CalibrationsBlue=Calibrations_N;
+ 349   1              Memory_Struct.Memory_CalibrationsWhite=Calibrations_N;
+ 350   1              Memory_Struct.Memory_CalibrationsYellow=Calibrations_N;
+ 351   1              Memory_Struct.Memory_CalibrationsPurple=Calibrations_N;
+ 352   1      
+ 353   1              IIC_WriteColoLumValue();
+ 354   1              IIC_WriteSysState();    
+ 355   1      }
+ 356          
+ 357          void Enter_AddrFunction(void){  
+ 358   1              if(SYS_State!=SYS_Dmx){
+ 359   2                      Update_Clear();
+ 360   2              }
+ 361   1              SYS_State=SYS_Dmx;
+ 362   1              SysBuf=SYS_State;SYS_StateBuf=SYS_State;
+ 363   1              DMX512_Slave;   
+C51 COMPILER V9.00   MENU_FUN_SEG                                                          07/01/2019 15:07:34 PAGE 7   
+
+ 364   1              IIC_WriteSysState();
+ 365   1      }
+ 366          
+ 367          void Enter_ManuFunction(void){  
+ 368   1              if(RUN_State==RUN_Normal)COLO_SIGNAL_MARK=0;
+ 369   1              if(SYS_State!=SYS_Colo){
+ 370   2                      SYS_State=SYS_Colo;
+ 371   2                      SysBuf=SYS_State;SYS_StateBuf=SYS_State;
+ 372   2                      Update_Clear();
+ 373   2              }
+ 374   1      //      DMX_RegStructure.D485TransmitNow[D485_XY_Speed]=0;
+ 375   1              Memory_Struct.Memory_Soud=0;    
+ 376   1              Memory_Struct.Memory_Stob=Memory_Stob,
+ 377   1      
+ 378   1              LED_RegStructure.PurpleLumValue=PurpleLumValue,
+ 379   1              LED_RegStructure.YellowLumValue=YellowLumValue,
+ 380   1              LED_RegStructure.WhiteLumValue=WhiteLumValue,
+ 381   1              LED_RegStructure.BlueLumValue=BlueLumValue,
+ 382   1              LED_RegStructure.GreenLumValue=GreenLumValue,
+ 383   1              LED_RegStructure.RedLumValue=RedLumValue,
+ 384   1      
+ 385   1              Task_Colo();    
+ 386   1              IIC_WriteSysState();
+ 387   1      }
+ 388          
+ 389          void Enter_AutoFunction(void){  
+ 390   1              if(SYS_State!=SYS_Auto){
+ 391   2                      LED_RegStructure.HclValue=0;
+ 392   2                      LED_RegStructure.ChangValue=1;
+ 393   2                      Task_Sys_i=0;
+ 394   2                      Update_Clear();
+ 395   2              }
+ 396   1              SYS_State=SYS_Auto;
+ 397   1              SysBuf=SYS_State;SYS_StateBuf=SYS_State;                
+ 398   1              Memory_Struct.Memory_Soud=0;    
+ 399   1              IIC_WriteSysState();     
+ 400   1      }
+ 401          /********************************************************************************/
+ 402          void Update_AutoHclFunction(void){    
+ 403   1              IIC_WriteSysState();
+ 404   1              IIC_WriteHcl();
+ 405   1      }
+ 406          void Update_AutoFadeFunction(void){    
+ 407   1              IIC_WriteSysState();
+ 408   1              IIC_WriteFade();
+ 409   1      }
+ 410          
+ 411          //void Update_AutoStobFunction(void){
+ 412          //      IIC_WriteSysState();
+ 413          //      IIC_WriteStob();
+ 414          //      IIC_WriteStobState(); 
+ 415          //}
+ 416          
+ 417          //void Update_AutoTestOn(void){ 
+ 418          //      LED_RegStructure.AllLumValue=255;
+ 419          ////    Led.DMXHclState=0;
+ 420          //      RUN_State=RUN_AutoTest;
+ 421          //}
+ 422          //
+ 423          //void Update_AutoTestOff(void){
+ 424          //    RUN_State=RUN_Normal;
+ 425          //      if((SYS_State==SYS_Colo)){
+C51 COMPILER V9.00   MENU_FUN_SEG                                                          07/01/2019 15:07:34 PAGE 8   
+
+ 426          //        Task_Colo();
+ 427          //      }
+ 428          //      else if(SYS_State==SYS_Soud){
+ 429          //              Update_SoundOn();
+ 430          //      }
+ 431          //}
+ 432          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1044    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     55    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

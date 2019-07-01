@@ -1,0 +1,666 @@
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE TASK_51
+OBJECT MODULE PLACED IN .\Output\task_51.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\task_51.c OPTIMIZE(0,SPEED) BROWSE INCDIR(.\Include;.\Code;.\drv;..\..
+                    -\app\drive) DEFINE(FOSC_160000) DEBUG OBJECTEXTEND PRINT(.\LST\task_51.lst) OBJECT(.\Output\task_51.obj)
+
+line level    source
+
+   1          #include "main.h"
+   2          #define MAXTASKS 10
+   3          xdata TASK Task_st[MAXTASKS];
+   4          void Task_Null(void) {;}
+   5          uint8_t xdata SysTick_i=0;
+   6           //WIFI-DMX.COM
+   7          extern uint32_t idata LocalTime;
+   8          //uint16_t Minute_Time=0,Long_Time=0,BackLight_Time=0,UnLockBuf=0;
+   9          
+  10          void Task_Clear(void)
+  11          {
+  12   1      //      uint8_t i=0;
+  13   1      //      for(i=D485_START;i<DMX512BUFSIZE;i++)
+  14   1      //      {
+  15   1      //              DMX_RegStructure.D485TransmitNow[i]=0;
+  16   1      //              DMX_RegStructure.DMXReceiveBuffer[i]=0;
+  17   1      //      }
+  18   1      //      DMX_RegStructure.D485TransmitNow[D485_XY_Speed]=0;
+  19   1      //      PanValueUpdate(0);
+  20   1      //      TiltValueUpdate(0);
+  21   1      //      DMX_RegStructure.D485TransmitNow[D485_X_CFine]=Memory_Struct.Memory_CalibrationsPan;
+  22   1      //      DMX_RegStructure.D485TransmitNow[D485_Y_CFine]=Memory_Struct.Memory_CalibrationsTilt;
+  23   1      //      LED_RegStructure.StobValue=0;
+  24   1      //      LED_RegStructure.FadeValue=0;
+  25   1      //      LED_RegStructure.HclValue=0;
+  26   1      //      LED_RegStructure.ChaseValue=0;
+  27   1      //      Led.DMXHclState=0;
+  28   1      
+  29   1      }
+  30          void Task_Colo(void)
+  31          {
+  32   1          Memory_Struct.Memory_Stob=Memory_Stob;
+  33   1              LED_RegStructure.PurpleLumValue=PurpleLumValue;
+  34   1              LED_RegStructure.YellowLumValue=YellowLumValue;
+  35   1              LED_RegStructure.WhiteLumValue=WhiteLumValue;
+  36   1              LED_RegStructure.BlueLumValue=BlueLumValue;
+  37   1              LED_RegStructure.GreenLumValue=GreenLumValue;
+  38   1              LED_RegStructure.RedLumValue=RedLumValue;
+  39   1              LED_RegStructure.AllLumValue=255;
+  40   1              LedRedValueUpdate(LED_RegStructure.RedLumValue);
+  41   1              LedGreenValueUpdate(LED_RegStructure.GreenLumValue);
+  42   1              LedBlueValueUpdate(LED_RegStructure.BlueLumValue);
+  43   1              LedWhiteValueUpdate(LED_RegStructure.WhiteLumValue);
+  44   1              LedYellowValueUpdate(LED_RegStructure.YellowLumValue);
+  45   1              LedPurpleValueUpdate(LED_RegStructure.PurpleLumValue);
+  46   1              LedStobValueUpdate(Memory_Struct.Memory_Stob);
+  47   1      
+  48   1      //      LED_RegStructure.TiltValue=TiltValue;
+  49   1      //      LED_RegStructure.PanValue=PanValue;
+  50   1      
+  51   1      //      LED_RegStructure.ZoomValue=ZoomValue;
+  52   1      //      LED_RegStructure.RotaValue=RotaValue;
+  53   1      //      LED_RegStructure.RedALumValue=RedALumValue;
+  54   1      //      LED_RegStructure.GreenALumValue=GreenALumValue;
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 2   
+
+  55   1      //      LED_RegStructure.BlueALumValue=BlueALumValue;
+  56   1      //      
+  57   1      //      DMX_RegStructure.D485TransmitNow[D485_XY_Speed]=0;
+  58   1      //      PanValueUpdate(LED_RegStructure.PanValue);
+  59   1      //      TiltValueUpdate(LED_RegStructure.TiltValue);
+  60   1      //      ZoomValueUpdate(LED_RegStructure.ZoomValue);
+  61   1      
+  62   1      //      LedRedValueUpdate_1(LED_RegStructure.RedALumValue);
+  63   1      //      LedGreenValueUpdate_1(LED_RegStructure.GreenALumValue);
+  64   1      //      LedBlueValueUpdate_1(LED_RegStructure.BlueALumValue);
+  65   1      
+  66   1      //      DMX_RegStructure.D485TransmitNow[D485_X_CFine]=Memory_Struct.Memory_CalibrationsPan;
+  67   1      //      DMX_RegStructure.D485TransmitNow[D485_Y_CFine]=Memory_Struct.Memory_CalibrationsTilt;
+  68   1      }
+  69          
+  70          void Task_TempUpdate(void)
+  71          {
+  72   1      //static uint8_t i=0;
+  73   1      //      if(i){
+  74   1      //              i=0;TM1618_Update(&SEGMenu_Buf,LED_0,LED_1,LED_2,LED_3,LED_PN);
+  75   1      //      }
+  76   1      //      else{
+  77   1      //              i=1;TM1618_Update(&SEGMenu_Buf,LED_off,LED_off,LED_off,LED_off,LED_PN);
+  78   1      //      }
+  79   1      //      uint8_t i=0,data3=3,data4=2;
+  80   1      //      static uint8_t state=0,Temp=0;
+  81   1      //      if(ABS(TemperatureBuf[0],TemperatureBuf[1]<8)&&ABS(TemperatureBuf[2],TemperatureBuf[1]<8)){
+  82   1      //              //Temperature=TemperatureBuf[1];
+  83   1      //      }
+  84   1      //      if((Temperature>120)&&(RUN_State==RUN_Normal)){
+  85   1      //              if(Temp++>4)Temp_Reset=1;
+  86   1      //      }
+  87   1      //      else{
+  88   1      //              Temp=0;Temp_Reset=0;
+  89   1      //      }
+  90   1      //
+  91   1      //      if((TempDispMark)&&(LCDDisplight)&&(RUN_State==RUN_Normal))
+  92   1      //      {       
+  93   1      //              if((state)&&((DeviceInfoStruct.ResetStatus1!=S1Status_Succeed)||(Temp_Reset))){  
+  94   1      //                      state=0;  
+  95   1      //                      LCM_Clr();      
+  96   1      //                      if((DeviceInfoStruct.ResetStatus1)==S2ResetStatus_Color1)
+  97   1      //                              LCM_Prints(0,2,"Color:Error");
+  98   1      //                      else if((DeviceInfoStruct.ResetStatus2)==S2ResetStatus_Gobo)
+  99   1      //                              LCM_Prints(0,2,"Water1:Error");
+ 100   1      //                      else if((DeviceInfoStruct.ResetStatus2)==S2ResetStatus_Zoom)
+ 101   1      //                              LCM_Prints(0,2,"Zoom:Error");
+ 102   1      //                      else if((DeviceInfoStruct.ResetStatus2)==S2ResetStatus_Color2)
+ 103   1      //                              LCM_Prints(0,2,"Water2:Error");
+ 104   1      //                      if(Temp_Reset)
+ 105   1      //                      LCM_Prints(0,3,"Temp:Error");
+ 106   1      //                      
+ 107   1      ////                    data2 = (uint8_t)((ADC_ConvertedValue[0]) % 1000 / 100);
+ 108   1      ////                    data3 = (uint8_t)((ADC_ConvertedValue[0]) % 100 / 10);
+ 109   1      ////                    data4 = (uint8_t)((ADC_ConvertedValue[0]) % 10);
+ 110   1      ////                    LCM_PrintsTemp(11,2,&Number_Char[data2]);
+ 111   1      ////                    LCM_PrintsTemp(12,2,&Number_Char[data3]);
+ 112   1      ////                    LCM_PrintsTemp(13,2,&Number_Char[data4]);
+ 113   1      //              }
+ 114   1      //              else{      
+ 115   1      //                      if(state==0){SystemShow();if(Minute_Time>=200)LCM_Prints(0,3," Locked... ");} 
+ 116   1      //                      state=1;
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 3   
+
+ 117   1      //              }
+ 118   1      //              data3 = (uint8_t)((Temperature&0x7f) % 100 / 10);
+ 119   1      //              data4 = (uint8_t)((Temperature&0x7f) % 10);
+ 120   1      //              LCM_PrintsTemp(12,3,&Number_Char[data3]);
+ 121   1      //              LCM_PrintsTemp(13,3,&Number_Char[data4]);       
+ 122   1      //              
+ 123   1      //              for(i=7;i<8;i++){ 
+ 124   1      //                      LCM_PrintChinese(2*i,3,HZ_temp);
+ 125   1      //              }
+ 126   1      //      }
+ 127   1              Task_st[TTempUpdate].uiTimeCount=100;//1S
+ 128   1      }
+ 129          
+ 130          void Task_LedStob(void){
+ 131   1            Task_st[TLedStob].uiTimeCount=1550;
+ 132   1      }
+ 133          
+ 134          void Task_LedHcl(void){
+ 135   1      //      if((SYS_State==SYS_Auto)&&(RUN_State==RUN_Normal)){ 
+ 136   1      //              LED_RegStructure.StobValue=0;
+ 137   1      //              LED_RegStructure.FadeValue=0;
+ 138   1      //              LED_RegStructure.HclValue=0;
+ 139   1      //              LED_RegStructure.ChaseValue=0;
+ 140   1      //              DMX_RegStructure.D485TransmitNow[D485_STROBE]=0;
+ 141   1      //              LedTab_ShowMarcoXY(Task_XY_State,Memory_Struct.Memory_Hcl,1);
+ 142   1      //              Task_Sys_i++;
+ 143   1      //              
+ 144   1      //              if(Task_Sys_i%20==0){
+ 145   1      //                      Task_XY_State=(Task_XY_State<15)?Task_XY_State+1:0;
+ 146   1      //              }       
+ 147   1      //              if(Task_Sys_i%(10*Memory_Struct.Memory_Hcl)==0){
+ 148   1      //                      Task_COLOR_State=(Task_COLOR_State<15)?Task_COLOR_State+1:0;
+ 149   1      //              }
+ 150   1      //              LedMic(Task_COLOR_State);
+ 151   1      //                                                      
+ 152   1      //              if(Task_Sys_i>=800){
+ 153   1      //                      Task_Sys_i=0;
+ 154   1      //              }
+ 155   1      //      }
+ 156   1         Task_st[TLedHcl].uiTimeCount=24;
+ 157   1      }
+ 158          
+ 159          void Led_Stob(void)
+ 160          {
+ 161   1      //      if(Led.LTime_Stob++>=4)
+ 162   1      //      { 
+ 163   1      //              Led.LTime_Stob=0;
+ 164   1      //              Led.LocalTime_Stob++;
+ 165   1      //              if((LED_RegStructure.StobValue)&&(RUN_State==RUN_Normal)&&(SYS_State!=SYS_Slave))
+ 166   1      //              {
+ 167   1      //                      if((Led.LocalTime_Stob>=Led.LEDStobValueBuf))
+ 168   1      //                      {
+ 169   1      //                              Led.LocalTime_Stob=0;
+ 170   1      //                              Led.LEDStobValueBuf=LedStobValueTask(1);
+ 171   1      //                      }
+ 172   1      //              }
+ 173   1      //      }
+ 174   1      //      Task_Sys();
+ 175   1      }
+ 176          
+ 177          void Task_LedFade(void)
+ 178          {
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 4   
+
+ 179   1      uint8_t xdata i=0;
+ 180   1              LED_RegStructure.SumValue=0;
+ 181   1              for(i=0;i<LED_TOTAL;i++){
+ 182   2                      LED_RegStructure.cDriverValue[i] = DMX_RegStructure.DMXTransmitNow[D485_RED+i];
+ 183   2                      LED_RegStructure.SumValue+=LED_RegStructure.cDriverValue[i];    
+ 184   2              }
+ 185   1              LedDrive();
+ 186   1      //static uint8_t i=0;   
+ 187   1      //      ADC_GET();
+ 188   1      //      if(i++>60){
+ 189   1      //              i=0;
+ 190   1      //              if(Temperature<40)FAN_OFF;
+ 191   1      //              else if((Temp_error>240)||(Temperature>50)){
+ 192   1      //                      FAN_ON;
+ 193   1      //              }
+ 194   1      //      }
+ 195   1              Task_st[TLedFade].uiTimeCount=12; 
+ 196   1      }
+ 197          
+ 198          //void SysTick_Handler(void){LocalTime +=1;}
+ 199          
+ 200          void Task_LedDMXFade(void) 
+ 201          {   
+ 202   1      //      if(((MotoResetTime++>80)&&(RUN_State==RUN_Reset))||(RUN_State==RUN_Normal)){
+ 203   1                      RUN_State=RUN_Normal;
+ 204   1      //              DMX_RegStructure.D485TransmitNow[D485_Reset]=200;
+ 205   1      //              
+ 206   1      //              MotoResetTime=0;
+ 207   1      //              DMX512_DataInit();
+ 208   1      //              SYS_MenuInit();
+ 209   1      //              if((SYS_State==SYS_Colo)&&(COLO_SIGNAL_MARK)){
+ 210   1      //                      Task_Colo();
+ 211   1      //              }               
+ 212   1                      Task_Cmd(&Task_st[TLedDMXFade],&Task_LedDMXFade,TaskDisable,Task_Null);
+ 213   1      //              SystemNum=BackSystemTime+1;
+ 214   1      //              Reset_Time=0;
+ 215   1      //      }
+ 216   1      
+ 217   1         Task_st[TLedDMXFade].uiTimeCount=1000; 
+ 218   1      }
+ 219          
+ 220          void SysChang_State(void){
+ 221   1      //      if(Reset_Time)Reset_Time++;if(DMX_Reg.DMX_Chang_Mark)DMX_Reg.DMX_Chang_Mark--;
+ 222   1      //      
+ 223   1      //      if(DMX_RegStructure.DMX_SIGNAL_MARK>800){
+ 224   1      //              if(SYS_StateBuf==SYS_Dmx){BackLightNum=1;LCM_LIGHT_ON;}else {LED_DMX=0;}    
+ 225   1      //              
+ 226   1      //              if(MainNormal()){
+ 227   1      //                      if(DMX_RegStructure.DMX_SIGNAL_MARK<2000){SystemNum=BackSystemTime+1;DMX_RegStructure.DMX_SIGNAL_MARK
+             -=2000;}
+ 228   1      //                      if((SYS_StateBuf==SYS_Dmx)&&(SYS_State!=SYS_Slave)){
+ 229   1      //                              switch(Memory_Struct.Memory_NoDMXStatus){
+ 230   1      //                                      case 0:Task_Clear();SYS_State=SYS_Dmx;
+ 231   1      //                                      break;
+ 232   1      //                                      case 1:
+ 233   1      //                                      break;
+ 234   1      //                                      case 2:
+ 235   1      //                                      if(SYS_State!=SYS_Auto){ 
+ 236   1      //                                              Task_Clear();
+ 237   1      //                                              SystemNum=BackSystemTime+1;
+ 238   1      //                                              SYS_State=SYS_Auto;
+ 239   1      //                                      }
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 5   
+
+ 240   1      //                                      break;
+ 241   1      //                                      case 3:SYS_State=SYS_Soud;
+ 242   1      //                                      break;
+ 243   1      //                                      default:break;
+ 244   1      //                              }
+ 245   1      //                      }
+ 246   1      //                      else if(SYS_State!=SYS_StateBuf){
+ 247   1      //                              Task_Clear();
+ 248   1      //                              SystemNum=BackSystemTime+1;
+ 249   1      //                              SYS_State=SYS_StateBuf;
+ 250   1      //                      }
+ 251   1      //                      else if(SYS_State==SYS_Slave)Task_Clear();
+ 252   1      //                      
+ 253   1      //              }
+ 254   1      //      }
+ 255   1      //      if((SYS_State==SYS_Colo))Task_Colo();
+ 256   1      }
+ 257          
+ 258          void Task_LedFading(void){
+ 259   1      //static uint8_t i=0; 
+ 260   1      //   if(((SYS_State==SYS_Dmx)||(SYS_State==SYS_Slave))&&(RUN_State==RUN_Normal)&&(rdm.identify_state)&&(DM
+             -X_RegStructure.DMX_SIGNAL_MARK>300))
+ 261   1      //   {
+ 262   1      //        if(i){
+ 263   1      //              i=0;PanValueUpdate(0);TiltValueUpdate(0);
+ 264   1      //        }
+ 265   1      //        else{
+ 266   1      //              i=1;PanValueUpdate(255);TiltValueUpdate(255);
+ 267   1      //        }
+ 268   1      //   }
+ 269   1      //   else
+ 270   1      //   {
+ 271   1      //        rdm.identify_state=0;
+ 272   1      //      if(RUN_State==RUN_Normal)SysChang_State();
+ 273   1      //   }
+ 274   1      //      //LED_DMX=~LED_DMX;
+ 275   1      //      WdtClear();     
+ 276   1              Task_st[TLedFading].uiTimeCount=1000; 
+ 277   1      }
+ 278          
+ 279          void Task_Menu(void){
+ 280   1              if(RUN_State!=RUN_Reset){MenuChange();}
+ 281   1              TM1618_Display();
+ 282   1              Task_st[TMenu].uiTimeCount=18;  
+ 283   1      //      if((RUN_State==RUN_Normal)&&(DMX_RegStructure.DMX_SIGNAL_MARK<1000))DMX_RegStructure.DMX_SIGNAL_MARK+=3
+             -;        
+ 284   1      }
+ 285          
+ 286          //void Task_DMXReset(uint8_t Reset_)
+ 287          //{
+ 288          //      if((DMX_RegStructure.DMXReceiveNow[Reset_]>9)&&(DMX_RegStructure.DMXReceiveNow[Reset_]<21)){
+ 289          //              if(Reset_Time==0)Reset_Time=1;
+ 290          //              if(Reset_Time>6){  
+ 291          //                      Reset_Time=0;
+ 292          //                      MotoResetTime=0;
+ 293          //                      RUN_State=RUN_Reset;
+ 294          //                      Update_ResetYes();
+ 295          //              }
+ 296          //      }
+ 297          //      else{
+ 298          //              Reset_Time=0;
+ 299          //      }
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 6   
+
+ 300          //}
+ 301          
+ 302          void Task_DMXUpdate(void){
+ 303   1      static uint8_t xdata j=0;
+ 304   1              DMX_RegStructure.DMX_SIGNAL_MARK=0;
+ 305   1      
+ 306   1              if((SYS_State==SYS_Dmx)&&(RUN_State==RUN_Normal)){
+ 307   2                      LedDMXDataCmd();
+ 308   2              }
+ 309   1              else if((RUN_State==RUN_Normal)&&(MainNormal())){
+ 310   2                 if(DMX_Reg.DMX_Chang_Mark++>20){
+ 311   3                       DMX_Reg.DMX_Chang_Mark=0;
+ 312   3                       SysBuf=SYS_State;
+ 313   3                       SYS_State=SYS_Dmx;
+ 314   3                       LED_RegStructure.HclValue=0;
+ 315   3                       LED_RegStructure.StobValue=0;
+ 316   3                 }
+ 317   2              }
+ 318   1              
+ 319   1      //     switch (Memory_Struct.Memory_Chan)
+ 320   1      //       {
+ 321   1      //               case _1channel:
+ 322   1      //               break;
+ 323   1      //               case _2channel:
+ 324   1      //               case _3channel:
+ 325   1      //               Task_DMXReset(DMX_FUNCTION_CH2);
+ 326   1      //               break;
+ 327   1      //       }
+ 328   1      
+ 329   1              if(j++==10){
+ 330   2                      pSEG->Point|=LED_P4;
+ 331   2              }
+ 332   1              else if(j++>=20){
+ 333   2                      j=0;
+ 334   2                      pSEG->Point&=~LED_P4;
+ 335   2              }       
+ 336   1              
+ 337   1              Task_Cmd(&Task_st[TDMXUpdate],&Task_DMXUpdate,TaskDisable,Task_Null);
+ 338   1      }
+ 339          
+ 340          void Task_MotoY(void){
+ 341   1      //      uint32_t buff=0;
+ 342   1      //      static uint32_t state=0;
+ 343   1      //      static uint32_t i=1000,j=0,k=0,State_Buf=0; 
+ 344   1      //      if((SYS_State==SYS_Soud)&&(RUN_State==RUN_Normal)){     
+ 345   1      //              
+ 346   1      //              AdcFilter();
+ 347   1      //              if(buff!=ADC_ConvertedValueLocal[0]){  
+ 348   1      //                      buff=ADC_ConvertedValueLocal[0];  
+ 349   1      //              }
+ 350   1      //              
+ 351   1      //              LED_RegStructure.StobValue=0;
+ 352   1      //              LED_RegStructure.FadeValue=0;
+ 353   1      //              LED_RegStructure.HclValue=0;
+ 354   1      //              LED_RegStructure.ChaseValue=0;
+ 355   1      //              DMX_RegStructure.D485TransmitNow[D485_STROBE]=0;
+ 356   1      //              
+ 357   1      //              //if((buff+0>=(100+(150*(255-Memory_Struct.Memory_Sose)/255)))&&(Memory_Struct.Memory_Sose)){
+ 358   1      //        if((buff+0>=(20+(200*(255-Memory_Struct.Memory_Sose)/255)))&&(Memory_Struct.Memory_Sose)){
+ 359   1      //              if(j>=150){LED_SOUND_ON;}
+ 360   1      //              j=0;     
+ 361   1      //              }        
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 7   
+
+ 362   1      //              if((j<150)&&(RUN_State==RUN_Normal)&&(SYS_State==SYS_Soud)){
+ 363   1      //                      j++;
+ 364   1      //                      
+ 365   1      //                      if((i%200==0)||(j==0)){   
+ 366   1      //                              if(state==0){
+ 367   1      //                                      Task_XY_State=(Task_XY_State<15)?Task_XY_State+1:0;
+ 368   1      //                                      state=400;
+ 369   1      //                              }
+ 370   1      //                      }       
+ 371   1      //                      if(i%100==0){     
+ 372   1      //                                      Task_COLOR_State=(Task_COLOR_State<15)?Task_COLOR_State+1:0;
+ 373   1      //                      }
+ 374   1      //                      DMX_RegStructure.D485TransmitNow[D485_XY_Speed]=0;              
+ 375   1      //              }
+ 376   1      //              else if((RUN_State==RUN_Normal)&&(SYS_State==SYS_Soud)&&(i%1000==0)){
+ 377   1      //                      j=2000;
+ 378   1      //                      if(i%500==0){
+ 379   1      //                              Task_COLOR_State=1;
+ 380   1      //                              Task_XY_State=(Task_XY_State<15)?Task_XY_State+1:0;
+ 381   1      //                      }
+ 382   1      //                      DMX_RegStructure.D485TransmitNow[D485_XY_Speed]=255;
+ 383   1      //              }
+ 384   1      //              
+ 385   1      //              LedTab_ShowMarcoXY(Task_XY_State,1,0);
+ 386   1      //              DMX_RegStructure.D485TransmitNow[D485_XX]=0;
+ 387   1      //              DMX_RegStructure.D485TransmitNow[D485_YY]=0;
+ 388   1      //              LedMic(Task_COLOR_State);
+ 389   1      //                      
+ 390   1      //              if(State_Buf!=Task_COLOR_State){
+ 391   1      //              
+ 392   1      //                      State_Buf=Task_COLOR_State;
+ 393   1      //                      //(*(fp+(i/40)))(1);
+ 394   1      //              }                                               
+ 395   1      //              
+ 396   1      //              if(i++>800){i=0;}       
+ 397   1      //
+ 398   1      //      k++;
+ 399   1      //      if((30==k)&&(RUN_State==RUN_Normal)&&(DMX_RegStructure.DMX_SIGNAL_MARK>=300))
+ 400   1      //      {
+ 401   1      //
+ 402   1      //      }
+ 403   1      //      else if((60<=k)&&(RUN_State==RUN_Normal))
+ 404   1      //      {
+ 405   1      //              LED_SOUND_OFF;
+ 406   1      //              k=0;
+ 407   1      //      }
+ 408   1      //        
+ 409   1      //      if(state)state--;
+ 410   1      //      Task_st[TMotoY].uiTimeCount=22*((25+100-Memory_Struct.Memory_Sose)/100);
+ 411   1      //  }
+ 412   1      }
+ 413          
+ 414          void Task_MotoZ(void)
+ 415          {
+ 416   1      //      uint8_t i=0,D485TransmitNowBuf=0;
+ 417   1      //      static uint8_t j=0;
+ 418   1      //      if(DMX_RegStructure.DMX_SIGNAL_MARK>800){SystemNum=BackSystemTime+1;}
+ 419   1      //      DMX_RegStructure.DMX_SIGNAL_MARK=0;
+ 420   1      //      if((SYS_State==SYS_Slave)&&(RUN_State==RUN_Normal)){        
+ 421   1      //              D485TransmitNowBuf=DMX_RegStructure.D485TransmitNow[D485_Reset];
+ 422   1      //              for(i=0;i<5;i++){
+ 423   1      //                      DMX_RegStructure.D485TransmitNow[i]=DMX_RegStructure.D485ReceiveNow[i];
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 8   
+
+ 424   1      //              }
+ 425   1      //              DMX_RegStructure.D485TransmitNow[D485_XY_Speed]=DMX_RegStructure.D485ReceiveNow[D485_XY_Speed];
+ 426   1      //              for(i=D485_START;i<D485_MASTER;i++){
+ 427   1      //                      DMX_RegStructure.D485TransmitNow[i]=DMX_RegStructure.D485ReceiveNow[i];
+ 428   1      //              }
+ 429   1      //              DMX_RegStructure.D485TransmitNow[D485_Reset]=D485TransmitNowBuf;
+ 430   1      //              
+ 431   1      //              if(((!Memory_Struct.Memory_PanInverse)&&(Memory_Struct.Memory_Mode == _SlaveMode2))||((Memory_Struct.M
+             -emory_PanInverse)&&(Memory_Struct.Memory_Mode == _SlaveMode1)))
+ 432   1      //              {               
+ 433   1      //                      DMX_RegStructure.D485TransmitNow[D485_X]=255-DMX_RegStructure.D485ReceiveNow[D485_X];
+ 434   1      //              }
+ 435   1      //              
+ 436   1      //              if(((!Memory_Struct.Memory_TiltInverse)&&(Memory_Struct.Memory_Mode == _SlaveMode2))||((Memory_Struct.
+             -Memory_TiltInverse)&&(Memory_Struct.Memory_Mode == _SlaveMode1)))
+ 437   1      //              {
+ 438   1      //                      DMX_RegStructure.D485TransmitNow[D485_Y]=255-DMX_RegStructure.D485ReceiveNow[D485_Y];
+ 439   1      //              }
+ 440   1      //              Led.LedStobState = DMX_RegStructure.D485ReceiveNow[D485_StobState];;
+ 441   1      //              LED_RegStructure.StobValue = DMX_RegStructure.D485ReceiveNow[D485_StobValue];
+ 442   1      //              LED_RegStructure.FadeValue=0;
+ 443   1      //              LED_RegStructure.HclValue=0;
+ 444   1      //              LED_RegStructure.ChaseValue=0;
+ 445   1      //      }  
+ 446   1      //      else if((RUN_State==RUN_Normal)&&(MainNormal())){       
+ 447   1      //              if(DMX_Reg.DMX_Chang_Mark++>20){
+ 448   1      //                      DMX_Reg.DMX_Chang_Mark=0;
+ 449   1      //                      SysBuf=SYS_State;
+ 450   1      //                      SYS_State=SYS_Slave;
+ 451   1      //                      SystemNum=BackSystemTime+1;
+ 452   1      //              }
+ 453   1      //      }
+ 454   1      //
+ 455   1      //      j++;
+ 456   1      //      if((j==20)&&(RUN_State==RUN_Normal)){
+ 457   1      //              //LED_SLAVE_ON;if(SYS_StateBuf==SYS_Dmx)LED_DMX_ON;
+ 458   1      //      }
+ 459   1      //      else if((j>=40)&&(RUN_State==RUN_Normal)){
+ 460   1      //              j=0;
+ 461   1      //              //LED_SLAVE_OFF;
+ 462   1      //      }
+ 463   1      
+ 464   1               Task_Cmd(&Task_st[TMotoZ],&Task_MotoZ,TaskDisable,Task_Null); 
+ 465   1      }
+ 466          
+ 467          
+ 468          void Task_Run(TASK*p,void (*fpNull)(),volatile unsigned char *uiPriority) {
+ 469   1         unsigned char i;  
+ 470   1              for(i=0;i<MAXTASKS;i++){   
+ 471   2                      if(*uiPriority){i=*uiPriority;*uiPriority=0;}
+ 472   2                      if((p+i)->fpTask!=fpNull){    
+ 473   3                              if(LocalTime-(p+i)->uiTimeBuf>=(p+i)->uiTimeCount){ 
+ 474   4                                      (p+i)->uiTimeBuf=LocalTime;(*(p+i)->fpTask)();
+ 475   4                              }  
+ 476   3                      }        
+ 477   2              }
+ 478   1              SysTick_i=SysTick_i+1;
+ 479   1      }
+ 480          
+ 481          void Tasks_Init(TASK *pTasks,void (*fpTask)(),volatile unsigned int uiTimeCount,volatile unsigned int uiTi
+             -meBuf) {
+ 482   1              pTasks->fpTask=fpTask;
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 9   
+
+ 483   1              pTasks->uiTimeCount=uiTimeCount;        
+ 484   1              pTasks->uiTimeBuf=uiTimeBuf;
+ 485   1      }
+ 486          
+ 487          void Task_Cmd(TASK *pTasks,void (*fpTask)(),TASK_CmdTypeDef bTaskCmd,void (*fpNull)()){
+ 488   1        if(bTaskCmd != TaskDisable){
+ 489   2          pTasks->fpTask=fpTask;
+ 490   2        }
+ 491   1        else{
+ 492   2          pTasks->fpTask=fpNull;
+ 493   2        }
+ 494   1      }
+ 495          
+ 496          void Task_Init(void) 
+ 497          {
+ 498   1               Tasks_Init(&Task_st[TTempUpdate],&Task_TempUpdate,72,0);
+ 499   1               Tasks_Init(&Task_st[TLedStob],&Task_LedStob,0,0);
+ 500   1               Tasks_Init(&Task_st[TLedHcl],&Task_LedHcl,0,0);
+ 501   1               Tasks_Init(&Task_st[TLedFade],&Task_LedFade,0,0);
+ 502   1               Tasks_Init(&Task_st[TLedFading],&Task_LedFading,0,0);
+ 503   1               Tasks_Init(&Task_st[TLedDMXFade],&Task_LedDMXFade,35,0);
+ 504   1      
+ 505   1               Tasks_Init(&Task_st[TMenu],&Task_Menu,155,0);
+ 506   1               Tasks_Init(&Task_st[TDMXUpdate],&Task_DMXUpdate,0,0);
+ 507   1               Tasks_Init(&Task_st[TMotoY],&Task_Menu,15,0);
+ 508   1               Tasks_Init(&Task_st[TMotoZ],&Task_DMXUpdate,15,0);
+ 509   1      
+ 510   1               Task_Cmd(&Task_st[TTempUpdate],&Task_TempUpdate,TaskEnable,Task_Null);
+ 511   1               Task_Cmd(&Task_st[TLedStob],&Task_LedStob,TaskEnable,Task_Null);
+ 512   1               Task_Cmd(&Task_st[TLedHcl],&Task_LedHcl,TaskEnable,Task_Null);
+ 513   1               Task_Cmd(&Task_st[TLedFade],&Task_LedFade,TaskEnable,Task_Null);
+ 514   1      
+ 515   1               Task_Cmd(&Task_st[TLedFading],&Task_LedFading,TaskEnable,Task_Null);
+ 516   1               Task_Cmd(&Task_st[TLedDMXFade],&Task_LedDMXFade,TaskEnable,Task_Null);
+ 517   1       
+ 518   1               Task_Cmd(&Task_st[TDMXUpdate],&Task_DMXUpdate,TaskDisable,Task_Null);
+ 519   1      
+ 520   1               Task_Cmd(&Task_st[TMotoY],&Task_MotoY,TaskEnable,Task_Null);
+ 521   1               Task_Cmd(&Task_st[TMotoZ],&Task_MotoZ,TaskDisable,Task_Null); 
+ 522   1               Task_Cmd(&Task_st[TMenu],&Task_Menu,TaskEnable,Task_Null);
+ 523   1      
+ 524   1      }
+ 525          
+ 526          void ADC_Con(uint8_t *p ,uint16_t *StobValuebuf,uint16_t StobValue)
+ 527          {
+ 528   1      //      *p=StobValue/((10-(SysTick->VAL*SysTick_i)&0x7))+(4-(SysTick->VAL*SysTick_i)&0x3)+2;
+ 529   1      //      *StobValuebuf=*p/4+1;
+ 530   1      }
+*** WARNING C280 IN LINE 526 OF CODE\TASK_51.C: 'p': unreferenced local variable
+*** WARNING C280 IN LINE 526 OF CODE\TASK_51.C: 'StobValuebuf': unreferenced local variable
+*** WARNING C280 IN LINE 526 OF CODE\TASK_51.C: 'StobValue': unreferenced local variable
+ 531          
+ 532          void Task_Sys(void)
+ 533          {
+ 534   1      //      if((SYS_State==SYS_Dmx)&&(RUN_State==RUN_Normal))
+ 535   1      //      {
+ 536   1      //              if((++Led.StobValuebuf_j>Led.StobValuebuf*2)&&(LED_RegStructure.StobValue))
+ 537   1      //              {
+ 538   1      //                      Led.StobValuebuf_j=1;
+ 539   1      //                      if(Memory_Struct.Memory_Chan==_1channel) 
+ 540   1      //                      {       
+ 541   1      //                              if(DMX_RegStructure.DMXReceiveBuffer[DMX_STROBE_CH1]<129){
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 10  
+
+ 542   1      //                                      ADC_Con(&DMX_RegStructure.D485TransmitNow[D485_STROBE] ,&Led.StobValuebuf,LED_RegStructure.StobValu
+             -e);
+ 543   1      //                              }
+ 544   1      //                              else{
+ 545   1      //                                      DMX_RegStructure.D485TransmitNow[D485_STROBE]=LED_RegStructure.StobValue;Led.StobValuebuf=0;
+ 546   1      //                              }
+ 547   1      //                      }
+ 548   1      //                      else if(Memory_Struct.Memory_Chan==_2channel)
+ 549   1      //                      {
+ 550   1      //                              if(DMX_RegStructure.DMXReceiveBuffer[DMX_STROBE_CH2]<129){
+ 551   1      //                                      ADC_Con(&DMX_RegStructure.D485TransmitNow[D485_STROBE] ,&Led.StobValuebuf,LED_RegStructure.StobValu
+             -e);
+ 552   1      //                              }
+ 553   1      //                              else{
+ 554   1      //                                      DMX_RegStructure.D485TransmitNow[D485_STROBE]=LED_RegStructure.StobValue;Led.StobValuebuf=0;
+ 555   1      //                              }
+ 556   1      //                      }
+ 557   1      //              }
+ 558   1      //      }
+ 559   1      //      else if((++Led.StobValuebuf_j>Led.StobValuebuf*2)&&(LED_RegStructure.StobValue)&&(SYS_State==SYS_Colo)&
+             -&(RUN_State==RUN_Normal))
+ 560   1      //      {
+ 561   1      //              Led.StobValuebuf_j=1;
+ 562   1      //              LED_RegStructure.FadeValue=0;
+ 563   1      //              LED_RegStructure.HclValue=0;
+ 564   1      //              LED_RegStructure.ChaseValue=0;
+ 565   1      //              if(Memory_Struct.Memory_Stob<129){
+ 566   1      //                      ADC_Con(&DMX_RegStructure.D485TransmitNow[D485_STROBE] ,&Led.StobValuebuf,LED_RegStructure.StobValue)
+             -;
+ 567   1      //              }
+ 568   1      //              else{
+ 569   1      //                      DMX_RegStructure.D485TransmitNow[D485_STROBE]=LED_RegStructure.StobValue;Led.StobValuebuf=0;
+ 570   1      //              }
+ 571   1      //      }                                          
+ 572   1      //
+ 573   1      //      D485_DMXSendPacket();
+ 574   1      //      
+ 575   1      //      if((SYS_State!=SYS_Slave)&&(SYS_State!=SYS_Dmx)&&(RUN_State==RUN_Normal))DMX512_DMXSendData();
+ 576   1      //      else if(RUN_State==RUN_AutoTest) DMX512_DMXSendData();
+ 577   1      
+ 578   1      }
+ 579          
+ 580          
+ 581          
+ 582          
+ 583          
+ 584          
+ 585          
+ 586          
+ 587          
+ 588          
+ 589          
+ 590          
+ 591          
+ 592          
+ 593          
+ 594          
+ 595          
+ 596          
+ 597          
+ 598          
+ 599          
+C51 COMPILER V9.00   TASK_51                                                               07/01/2019 15:07:33 PAGE 11  
+
+ 600          
+ 601          
+ 602          
+ 603          
+ 604          
+ 605          
+ 606          
+ 607          
+ 608          
+ 609          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2111    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =    113    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     38    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  3 WARNING(S),  0 ERROR(S)

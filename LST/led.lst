@@ -1,0 +1,415 @@
+C51 COMPILER V9.00   LED                                                                   07/01/2019 15:07:33 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE LED
+OBJECT MODULE PLACED IN .\Output\led.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\led.c OPTIMIZE(0,SPEED) BROWSE INCDIR(.\Include;.\Code;.\drv;..\..\app
+                    -\drive) DEFINE(FOSC_160000) DEBUG OBJECTEXTEND PRINT(.\LST\led.lst) OBJECT(.\Output\led.obj)
+
+line level    source
+
+   1          #include "main.h"
+   2          
+   3          #define DMXFadeStartValue  255
+   4          xdata uint8_t LedEffect1_State=1,LedEffect2_State=1,LedEffect2_StateMARK=1,LedEffect3_State=1,LedEffect4_S
+             -tate=1,LedEffect5_State=1,FadePwmValue=0;
+   5          xdata LED_TypeDef LED_RegStructure;
+   6          //xdata LED_Type Led;
+   7           //WIFI-DMX.COM
+   8          #define Led_FadeValue(HclSpeed) ((((255-HclSpeed)*2880000)/255)+184000)
+   9          
+  10          code uint16_t CHASE_LED[LED_Point_Num]={COLOR_0,COLOR_1,COLOR_2,COLOR_3};
+  11          
+  12          #define Led_ChaseValue(ChaseSpeed)      (((255-ChaseSpeed)/20)*((255-ChaseSpeed)/20)+8)
+  13          
+  14          /*
+  15          const uint8_t TabHoldColor[]=
+  16          {
+  17          
+  18               0,     0,     0,           0,        //0
+  19          //    R      G      B           w
+  20               255,     0,     0,         0,        //1
+  21                 0,   255,     0,     0,     //2
+  22                 0,     0,   255,         0,         //3
+  23                 0,     0,     0,   255,     //4
+  24          
+  25               255,   255,     0,     0,     //5 Y
+  26               255,     0,   255,     0,     //6 P
+  27               255,     0,     0,   255,     //7
+  28                 0,   255,   255,     0,     //8 C
+  29                 0,   255,     0,   255,     //9
+  30                 0,     0,   255,   255,     //10
+  31          
+  32               255,   255,   255,     0,     //11
+  33               255,   255,     0,   255,     //12
+  34                   255,     0,   255,   255,         //13
+  35                     0,   255,   255,   255,         //14
+  36          
+  37               255,   255,   255,   255,     //15 ALL
+  38          
+  39                  255,   0,   0,   0,  //  16 R
+  40                  255,   0,   0, 100,  //  17 
+  41                  255,   0,   0, 200,  //  18
+  42                  255,  50,   0,   0,  //  19
+  43                  255, 150,   0,   0,  //  20
+  44                  255, 255,   0,   0,  //  21
+  45                  255, 255,   0,  75,  //  22
+  46                    0, 255,   0, 255,  //  23
+  47                    0, 255,   0, 150,  //  24
+  48                    0, 255,   0,  50,  //  25
+  49                    0, 255,   0,   0,  //  26
+  50                    0, 255,  50,   0,  //  27
+  51                    0, 255, 150,   0,  //  28
+  52                    0, 255, 255,   0,  //  29
+  53                    0, 255, 255,  75,  //  30
+C51 COMPILER V9.00   LED                                                                   07/01/2019 15:07:33 PAGE 2   
+
+  54                    0, 255, 255, 150,  //  31
+  55                    0, 100, 255, 255,  //  32
+  56                    0,   0, 255, 100,  //  33
+  57                    0,   0, 255,  50,  //  34
+  58                    0,   0, 255,   0,  //  35
+  59                   75,   0, 255,   0,  //  36
+  60                  160,   0, 255,   0,  //  37
+  61                  255,   0, 255,   0,  //  38
+  62                  255,   0, 175,   0,  //  39
+  63                  255,   0, 100,   0,  //  40
+  64                  255,   0, 100,  50,  //  41
+  65                  255,   0,  25,  50,  //  42
+  66                  255,   0,  25,  25,  //  43
+  67                  255,   0,  25,   0,  //  44
+  68                    0,   0,   0, 255,  //  45
+  69                   75,  75,   0, 255,  //  46
+  70                    0,   0, 100, 255,  //  47
+  71                  255, 255, 255, 255,  //  48
+  72                  255, 255, 255, 255,  //  48
+  73                  255, 255, 255, 255,  //  48
+  74                  255, 255, 255, 255,  //  48
+  75          };
+  76          */
+  77          /*
+  78          void LedGetColor(__IO uint8_t Bytedata, __IO uint8_t *pSource)
+  79          {
+  80          
+  81              *pSource ++ = TabHoldColor[Bytedata * 4 + 0];
+  82                  *pSource ++ = TabHoldColor[Bytedata * 4 + 1];
+  83                  *pSource ++ = TabHoldColor[Bytedata * 4 + 2];
+  84                  *pSource    = TabHoldColor[Bytedata * 4 + 3]; 
+  85          
+  86          }
+  87          
+  88          const uint8_t TabHoldColor1[]=
+  89          {
+  90               0,     0,     0,           0,         //0
+  91          //    R      G      B           w
+  92               255,     0,     0,         0,         //1
+  93               255,    62,     0,     0,     //2
+  94                 2,   255,     0,         0,         //3
+  95                 2,   255,   255,     0,     //4
+  96                 2,     0,   255,     0,     //5 Y
+  97               255,     0,   130,     0,     //6 P
+  98                 0,     0,     0,   255,     //7
+  99          };
+ 100          const uint8_t TabHoldColor2[]=
+ 101          {
+ 102               0,     0,     0,           0,         //0
+ 103          //    R      G      B           w
+ 104               255,     0,     0,         0,         //1
+ 105               255,     0,   255,     0,     //2
+ 106                 0,     0,     0,   255,     //3
+ 107          };
+ 108          const uint8_t TabHoldColor3[]=
+ 109          {
+ 110               0,     0,     0,           0,         //0
+ 111          //    R      G      B           w
+ 112                 0,   255,     0,         0,         //1
+ 113               255,     0,    50,     0,     //2
+ 114          };
+ 115          const uint8_t TabHoldColor4[]=
+C51 COMPILER V9.00   LED                                                                   07/01/2019 15:07:33 PAGE 3   
+
+ 116          {
+ 117               0,     0,     0,           0,         //0
+ 118          //    R      G      B           w
+ 119               255,     0,     0,         0,         //1
+ 120                 0,     0,     0,   255,     //2
+ 121               255,     0,     0,         0,         //3
+ 122                 0,     0,   255,     0,     //4
+ 123          };
+ 124          const uint8_t TabHoldColor5[]=
+ 125          {
+ 126               0,     0,     0,           0,         //0
+ 127          //    R      G      B           w
+ 128               255,     0,     0,         0,         //1
+ 129                   255,     0,     0,             0,         //2
+ 130                   255,     0,     0,             0,         //3
+ 131                   255,     0,     0,             0,         //4
+ 132                   255,     0,     0,             0,         //5
+ 133                   255,     0,     0,             0,         //6
+ 134                   255,     0,     0,             0,         //7
+ 135                   255,     0,     0,             0,         //8
+ 136                   255,     0,     0,             0,         //9
+ 137                   255,     0,     0,             0,         //10
+ 138               255,   255,   255,   255,     //11
+ 139                 0,     0,   255,         0,         //12
+ 140                     0,     0,   255,     0,         //13
+ 141                     0,     0,   255,     0,         //14
+ 142                     0,     0,   255,     0,         //15
+ 143                     0,     0,   255,     0,         //16
+ 144                     0,     0,   255,     0,         //17
+ 145                     0,     0,   255,     0,         //18
+ 146                     0,     0,   255,     0,         //19
+ 147                     0,     0,   255,     0,         //20
+ 148                     0,     0,   255,     0,         //21
+ 149              255,   255,   255,    255,     //22
+ 150          };
+ 151          const uint8_t TabHoldColor6[]=
+ 152          {
+ 153               0,     0,     0,           0,         //0
+ 154          //    R      G      B           w
+ 155               255,     0,    50,         0,         //1
+ 156                     0,     0,     0,       255,     //2
+ 157                     0,   255,     0,             0,         //3
+ 158                 2,     0,     0,   255,     //4
+ 159          };
+ 160          const uint8_t TabHoldColor7[]=
+ 161          {
+ 162               0,     0,     0,           0,         //0
+ 163          //    R      G      B           w
+ 164               255,   100,     0,         0,         //1
+ 165                     0,   255,   255,         0,     //2
+ 166          };
+ 167          const uint8_t TabHoldColor8[]=
+ 168          {
+ 169               0,     0,     0,           0,         //0
+ 170          //    R      G      B           w
+ 171                 0,     0,   255,         0,         //1
+ 172                     0,     0,     0,       255,     //2
+ 173          };
+ 174          
+ 175          */
+ 176          //void LedGetColor_(uint8_t *TabHoldColor,uint8_t Bytedata,uint8_t *pSource)
+ 177          //{
+C51 COMPILER V9.00   LED                                                                   07/01/2019 15:07:33 PAGE 4   
+
+ 178          ///*R G B */
+ 179          ///*
+ 180          //    *pSource ++ = TabHoldColor[Bytedata * 3 + 0];
+ 181          //      *pSource ++ = TabHoldColor[Bytedata * 3 + 1];
+ 182          //      *pSource    = TabHoldColor[Bytedata * 3 + 2];  */
+ 183          //
+ 184          ///*R G B W */
+ 185          //
+ 186          //    *pSource ++ = TabHoldColor[Bytedata * 4 + 0];
+ 187          //      *pSource ++ = TabHoldColor[Bytedata * 4 + 1];
+ 188          //      *pSource ++ = TabHoldColor[Bytedata * 4 + 2];
+ 189          //      *pSource    = TabHoldColor[Bytedata * 4 + 3]; 
+ 190          //
+ 191          ///*R G B W Y*/
+ 192          ///*
+ 193          //    *pSource ++ = TabHoldColor[Bytedata * 5 + 0];
+ 194          //      *pSource ++ = TabHoldColor[Bytedata * 5 + 1];
+ 195          //      *pSource ++ = TabHoldColor[Bytedata * 5 + 2];
+ 196          //      *pSource ++ = TabHoldColor[Bytedata * 5 + 3];
+ 197          //      *pSource    = TabHoldColor[Bytedata * 5 + 4];
+ 198          //      */
+ 199          ///*R G B W Y P*/
+ 200          ///*
+ 201          //    *pSource ++ = TabHoldColor[Bytedata * 6 + 0];
+ 202          //      *pSource ++ = TabHoldColor[Bytedata * 6 + 1];
+ 203          //      *pSource ++ = TabHoldColor[Bytedata * 6 + 2];
+ 204          //      *pSource ++ = TabHoldColor[Bytedata * 6 + 3];
+ 205          //      *pSource ++ = TabHoldColor[Bytedata * 6 + 4];
+ 206          //      *pSource    = TabHoldColor[Bytedata * 6 + 5];
+ 207          //*/
+ 208          //}
+ 209          
+ 210          //void Led_Init(void){    
+ 211          //
+ 212          //  LED_RegStructure.RedLumValue=0;
+ 213          //  LED_RegStructure.GreenLumValue=0;
+ 214          //  LED_RegStructure.BlueLumValue=0;
+ 215          //  LED_RegStructure.WhiteLumValue=0;
+ 216          //  LED_RegStructure.YellowLumValue=0;
+ 217          //  LED_RegStructure.PurpleLumValue=0;
+ 218          //
+ 219          //  LED_RegStructure.AllLumValue=0;                               
+ 220          //  
+ 221          //  LED_RegStructure.StobValue=0;       
+ 222          //  LED_RegStructure.HclValue=0;
+ 223          //  LED_RegStructure.FadeValue=0;
+ 224          //  LED_RegStructure.ChangValue=1; 
+ 225          //}
+ 226          
+ 227          
+ 228          /************************************************************************************/
+ 229          
+ 230          void LedRedValueUpdate(uint8_t idata ByteData){
+ 231   1              DMX_RegStructure.DMXTransmitNow[D485_RED]=ByteData;
+ 232   1      }
+ 233          
+ 234          void LedGreenValueUpdate(uint8_t idata ByteData){
+ 235   1              DMX_RegStructure.DMXTransmitNow[D485_GREEN]=ByteData;
+ 236   1      }
+ 237          
+ 238          void LedBlueValueUpdate(uint8_t idata ByteData){
+ 239   1              DMX_RegStructure.DMXTransmitNow[D485_BLED]=ByteData;
+C51 COMPILER V9.00   LED                                                                   07/01/2019 15:07:33 PAGE 5   
+
+ 240   1      }
+ 241          
+ 242          void LedWhiteValueUpdate(uint8_t idata ByteData){
+ 243   1              DMX_RegStructure.DMXTransmitNow[D485_WHITE]=ByteData;
+ 244   1      }
+ 245          
+ 246          void LedYellowValueUpdate(uint8_t idata ByteData){
+ 247   1              DMX_RegStructure.DMXTransmitNow[D485_YELLOW]=ByteData;
+ 248   1      }
+ 249          
+ 250          void LedPurpleValueUpdate(uint8_t idata ByteData){
+ 251   1              DMX_RegStructure.DMXTransmitNow[D485_PURPLE]=ByteData;
+ 252   1      }
+ 253          
+ 254          void LedAllValueUpdate_0(void){    
+ 255   1      
+ 256   1              LedRedValueUpdate(0);
+ 257   1              LedGreenValueUpdate(0);
+ 258   1              LedBlueValueUpdate(0);  
+ 259   1              LedWhiteValueUpdate(0);
+ 260   1              LedYellowValueUpdate(0);
+ 261   1              LedPurpleValueUpdate(0);
+ 262   1      }
+ 263          
+ 264          uint8_t LedStobValueTask(uint8_t idata e){
+ 265   1      //      if(!Led.LedStobState){
+ 266   1      //              if(e)Led.LedStobState=1;
+ 267   1      //      }
+ 268   1      //      else{   
+ 269   1      //              if(e)Led.LedStobState=0;        
+ 270   1      //      }
+ 271   1      //      if(Led.LedStobState)
+ 272   1      //      return ((DMX_RegStructure.D485TransmitNow[D485_STROBE]+1)/10)*((DMX_RegStructure.D485TransmitNow[D485_S
+             -TROBE]+1)/5);
+ 273   1      //      else
+ 274   1              return 1;
+ 275   1      }
+*** WARNING C280 IN LINE 264 OF CODE\LED.C: 'e': unreferenced local variable
+ 276          
+ 277          void LedStobValueUpdate(uint8_t idata ByteData){
+ 278   1      //      if(Memory_Struct.Memory_Stob>0){
+ 279   1      //              LED_RegStructure.StobValue=(257-Memory_Struct.Memory_Stob)/4+2;
+ 280   1      //      }
+ 281   1      //      else{
+ 282   1      //              LED_RegStructure.StobValue=0;
+ 283   1      //              Led.LedStobState=0;
+ 284   1      //              LED_RegStructure.AllLumValue=255;//zong
+ 285   1      //              LedRedValueUpdate(LED_RegStructure.RedLumValue);
+ 286   1      //              LedGreenValueUpdate(LED_RegStructure.GreenLumValue);
+ 287   1      //      }
+ 288   1      //      
+ 289   1      //      DMX_RegStructure.D485TransmitNow[D485_STROBE]=LED_RegStructure.StobValue;
+ 290   1      //      Led.StobValuebuf=0;
+ 291   1      //      Led.LEDStobValueBuf=LedStobValueTask(0);
+ 292   1      }
+*** WARNING C280 IN LINE 277 OF CODE\LED.C: 'ByteData': unreferenced local variable
+ 293          
+ 294          
+ 295          //void DMX_Move(uint8_t DIMMER,uint8_t STROBE)
+ 296          //{
+ 297          //      LED_RegStructure.AllLumValue = DMX_RegStructure.DMXReceiveNow[DIMMER];
+ 298          //
+C51 COMPILER V9.00   LED                                                                   07/01/2019 15:07:33 PAGE 6   
+
+ 299          //      if((DMX_RegStructure.DMXReceiveNow[STROBE]>10)){                  
+ 300          //              LED_RegStructure.StobValue=(257-DMX_RegStructure.DMXReceiveNow[STROBE])/4+2;
+ 301          //              if((DMX_RegStructure.DMXReceiveBuffer[STROBE]<=10)){
+ 302          //                      Led.LocalTime_Stob=1;
+ 303          //                      Led.LedStobState=0;                                                                                             
+ 304          //                      Led.LTime_Stob=0;
+ 305          //              }
+ 306          //              DMX_RegStructure.D485TransmitNow[STROBE]=LED_RegStructure.StobValue*1;
+ 307          //              Led.LEDStobValueBuf=LedStobValueTask(0);                                        
+ 308          //      }
+ 309          //      else{
+ 310          //              DMX_RegStructure.D485TransmitNow[STROBE]=LED_RegStructure.StobValue=0;
+ 311          //      }
+ 312          //      DMX_RegStructure.DMXReceiveBuffer[STROBE]=DMX_RegStructure.DMXReceiveNow[STROBE];       
+ 313          //
+ 314          //}
+ 315          
+ 316          
+ 317          //void DMX_Move(uint8_t DIMMER,uint8_t STROBE){
+ 318          //      LED_RegStructure.AllLumValue = DMX_RegStructure.DMXReceiveNow[DIMMER];
+ 319          //      if((DMX_RegStructure.DMXReceiveNow[STROBE]>10)){                  
+ 320          //              if(DMX_RegStructure.DMXReceiveNow[STROBE]>128){
+ 321          //                      LED_RegStructure.StobValue=(257-DMX_RegStructure.DMXReceiveNow[STROBE])/2;
+ 322          //                      if((ABS(DMX_RegStructure.DMXReceiveBuffer[STROBE],DMX_RegStructure.DMXReceiveNow[STROBE])>30)
+ 323          //                      ||(DMX_RegStructure.DMXReceiveBuffer[STROBE]<=128)){
+ 324          //                              Led.LocalTime_Stob=1;
+ 325          //                              Led.LedStobState=0;                                                                                             
+ 326          //                              if(DMX_RegStructure.DMXReceiveBuffer[STROBE]<=128)Led.LTime_Stob=0;
+ 327          //                      }
+ 328          //                      DMX_RegStructure.D485TransmitNow[D485_STROBE]=LED_RegStructure.StobValue*2;
+ 329          //                      Led.LEDStobValueBuf=LedStobValueTask(0);
+ 330          //              }
+ 331          //              else{
+ 332          //                      LED_RegStructure.StobValue=129-DMX_RegStructure.DMXReceiveNow[STROBE]+2;                  
+ 333          //              }                                       
+ 334          //      }
+ 335          //      else{
+ 336          //              DMX_RegStructure.D485TransmitNow[D485_STROBE]=LED_RegStructure.StobValue=0;
+ 337          //      }
+ 338          //      DMX_RegStructure.DMXReceiveBuffer[STROBE]=DMX_RegStructure.DMXReceiveNow[STROBE];       
+ 339          //}
+ 340          
+ 341          void LedDMXDataCmd(void){        
+ 342   1           LED_RegStructure.HclValue=0;
+ 343   1               LED_RegStructure.FadeValue=0;
+ 344   1      
+ 345   1               switch (Memory_Struct.Memory_Chan)
+ 346   1               {
+ 347   2                      case _1channel:                         
+ 348   2                      LED_RegStructure.AllLumValue = 255;
+ 349   2                      LED_RegStructure.StobValue = 0;
+ 350   2      
+ 351   2                      LedRedValueUpdate(DMX_RegStructure.DMXReceiveNow[DMX_RED_CH1]);
+ 352   2                      LedGreenValueUpdate(DMX_RegStructure.DMXReceiveNow[DMX_GREEN_CH1]);
+ 353   2                      LedBlueValueUpdate(DMX_RegStructure.DMXReceiveNow[DMX_BLUE_CH1]);
+ 354   2                      LedWhiteValueUpdate(DMX_RegStructure.DMXReceiveNow[DMX_WHITE_CH1]);
+ 355   2      
+ 356   2                      break;
+ 357   2                      case _2channel:                         
+ 358   2      //              DMX_Move(DMX_DIMMER_CH2,DMX_STROBE_CH2);
+ 359   2      //              DMX_LedFade(DMX_RegStructure.DMXReceiveNow,DMX_AUTO_CH2,DMX_SPEED_CH2);
+ 360   2      
+C51 COMPILER V9.00   LED                                                                   07/01/2019 15:07:33 PAGE 7   
+
+ 361   2                      LED_RegStructure.AllLumValue = 255;
+ 362   2                      LED_RegStructure.StobValue = 0;
+ 363   2      
+ 364   2                      LedRedValueUpdate(DMX_RegStructure.DMXReceiveNow[DMX_RED_CH2]);
+ 365   2                      LedGreenValueUpdate(DMX_RegStructure.DMXReceiveNow[DMX_GREEN_CH2]);
+ 366   2                      LedBlueValueUpdate(DMX_RegStructure.DMXReceiveNow[DMX_BLUE_CH2]);
+ 367   2                      LedWhiteValueUpdate(DMX_RegStructure.DMXReceiveNow[DMX_WHITE_CH2]);
+ 368   2                      break;
+ 369   2                      case _3channel:                 
+ 370   2                      break;
+ 371   2                      default:break;
+ 372   2               }      
+ 373   1      }
+ 374          
+ 375          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    225    ----
+   CONSTANT SIZE    =      8    ----
+   XDATA SIZE       =     40    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

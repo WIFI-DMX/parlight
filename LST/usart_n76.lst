@@ -1,0 +1,127 @@
+C51 COMPILER V9.00   USART_N76                                                             07/01/2019 15:07:35 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE USART_N76
+OBJECT MODULE PLACED IN .\Output\usart_n76.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE drv\usart_n76.c OPTIMIZE(0,SPEED) BROWSE INCDIR(.\Include;.\Code;.\drv;..\.
+                    -.\app\drive) DEFINE(FOSC_160000) DEBUG OBJECTEXTEND PRINT(.\LST\usart_n76.lst) OBJECT(.\Output\usart_n76.obj)
+
+line level    source
+
+   1          #include "main.h"
+   2           //WIFI-DMX.COM
+   3          xdata DMX_TypeDef DMX_RegStructure;
+   4          xdata DMX_Type DMX_Reg;
+   5          
+   6          void DMX512_Receive(DMX_TypeDef xdata *DMX,DMX_Type xdata *D,uint8_t xdata schang)
+   7          {
+   8   1              if (RI) 
+   9   1              {                                    
+  10   2                      clr_RI;                          
+  11   2                      if(RB8 == 0){
+  12   3                              D->UDR = SBUF;
+  13   3                      }
+  14   2                      else{
+  15   3                              D->UDR = SBUF|0x0100;           
+  16   3                      }
+  17   2      
+  18   2                      if (((D->UDR & 0x0100) == 0)&&(RUN_State==RUN_Normal)){  
+  19   3                              if(!(D->UDR&0x00ff)){
+  20   4                                      D->aFlagMark = Signal_Dmx;      
+  21   4                                      D->pDMXData  = 0;D->pAddrData = 0;D->pRDMData = 0;               
+  22   4                              }
+  23   3                              else if((D->UDR&0x00ff)==DMXAutoReceiveMark){
+  24   4                                      D->aFlagMark = Signal_Slave;
+  25   4                                      D->pDMXData  = 0;D->pAddrData = 0;D->pRDMData = 0;
+  26   4                                      DMXCRC_Slave=0;
+  27   4                                      if(SYS_State!=SYS_Slave){       
+  28   5                                              if(D->DMX_Chang_Mark++>6)Task_Cmd(&Task_st[TMotoZ],&Task_MotoZ,TaskEnable,Task_Null);              
+  29   5                                      }
+  30   4                              }else D->DMX_Chang_Mark=0;
+  31   3                      }
+  32   2                      else if(D->aFlagMark == Signal_Dmx){
+  33   3                              if(D->pAddrData == 0) {
+  34   4                                      if((D->UDR&0x00ff)!= 0){ 
+  35   5                                              D->aFlagMark = Signal_Null; //error, reset flag
+  36   5                                              D->DMX_Chang_Mark=0;
+  37   5                                      }
+  38   4                                      else{
+  39   5                                              if(SYS_State!=SYS_Dmx){                     
+  40   6                                                      if(D->DMX_Chang_Mark++>6)Task_Cmd(&Task_st[TDMXUpdate],&Task_DMXUpdate,TaskEnable,Task_Null);                                   
+  41   6                                              }
+  42   5                                              //if(D->DMX_Chang_Mark++>6){if((MainNormal()&&(DMX->DMXChange != schang))){SystemNum=BackSystemTime+1
+             -;}DMX->DMXChange = schang;}                           
+  43   5                                      }
+  44   4                              }
+  45   3      
+  46   3      //                      DMX->dmx_Recv_data[D->pAddrData]= (uint8_t)D->UDR; 
+  47   3                                                      
+  48   3                              if(++D->pAddrData>=Memory_Struct.Memory_Addr){
+  49   4                                      if(D->pDMXData <= Memory_Struct.Memory_Chan)DMX->DMXReceiveNow[D->pDMXData++] = (uint8_t)D->UDR; 
+  50   4                              }       
+  51   3                              //接收到512个数据               
+  52   3                              if ((D->pDMXData > Memory_Struct.Memory_Chan)||(D->pAddrData > 512)){
+  53   4                                      if((schang)||(D->pAddrData > 512)){
+C51 COMPILER V9.00   USART_N76                                                             07/01/2019 15:07:35 PAGE 2   
+
+  54   5                                              D->aFlagMark = Signal_Null;
+  55   5                                              D->pAddrData = 0;
+  56   5                                              if(D->pDMXData > Memory_Struct.Memory_Chan){
+  57   6                                                      Task_Cmd(&Task_st[TDMXUpdate],&Task_DMXUpdate,TaskEnable,&Task_Null);
+  58   6                                              }                               
+  59   5                                      }
+  60   4                              }       
+  61   3                      } 
+  62   2                      else if(D->aFlagMark == Signal_Slave){                                  
+  63   3                              if(D->pAddrData<D485_SLAVE){                    
+  64   4                                      DMX->DMXReceiveNow[D->pAddrData++]=(uint8_t)D->UDR;     
+  65   4                                      if(D->pAddrData<=DMX_CRC)DMXCRC_Slave=DMXCRC_Slave+DMX->DMXReceiveNow[D->pAddrData-1];                                    
+  66   4                              }
+  67   3                              else{
+  68   4                                      D->aFlagMark = Signal_Null;
+  69   4                                      D->pAddrData = 0;
+  70   4                                      if(DMX->DMXReceiveNow[DMX_CRC]==DMXCRC_Slave)Task_Cmd(&Task_st[TMotoZ],&Task_MotoZ,TaskEnable,Task_Nul
+             -l); 
+  71   4                                      //if(D->DMX_Chang_Mark++>6){if((MainNormal()&&(DMX->DMXChange != schang))){SystemNum=BackSystemTime+1;
+             -}DMX->DMXChange = schang;}  
+  72   4                              }
+  73   3                      }       
+  74   2              }
+  75   1      
+  76   1              if(TI)
+  77   1              {
+  78   2                      clr_TI;                          
+  79   2                        
+  80   2                      if(D->DMXTxCounter<D485_MASTER){
+  81   3                              if(D->DMXTxCounter<DMX_CRC)DMXCRC=DMXCRC+DMX->DMXTransmitNow[D->DMXTxCounter];
+  82   3                          if(D->DMXTxCounter==DMX_CRC){
+  83   4                                      SendData(DMXCRC);
+  84   4                                      D->DMXTxCounter++;
+  85   4                              }
+  86   3                              else
+  87   3                              SendData(DMX->DMXTransmitNow[D->DMXTxCounter++]);
+  88   3                      }
+  89   2                      else{
+  90   3                              D->DMXTxCounter=0;
+  91   3                              DMX512_Slave; 
+  92   3                              D->DMXTransmitFinish=1;
+  93   3                      }                         
+  94   2              }
+  95   1      
+  96   1      }
+  97          
+  98          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1691    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     79    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,87 @@
+C51 COMPILER V9.00   MAIN                                                                  07/01/2019 15:07:32 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Output\main.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\main.c OPTIMIZE(0,SPEED) BROWSE INCDIR(.\Include;.\Code;.\drv;..\..\ap
+                    -p\drive) DEFINE(FOSC_160000) DEBUG OBJECTEXTEND PRINT(.\LST\main.lst) OBJECT(.\Output\main.obj)
+
+line level    source
+
+   1          /*--------------------------------------------------------------------------------------------------------
+             --*/
+   2          /*                                                                                                        
+             - */
+   3          /* Copyright(c) 2016 Nuvoton Technology Corp. All rights reserved.                                        
+             - */
+   4          /*                                                                                                        
+             - */
+   5          /*--------------------------------------------------------------------------------------------------------
+             --*/
+   6          
+   7          //********************************************************************************************************
+             -***
+   8          //  Nuvoton Technoledge Corp. 
+   9          //  Website: http://www.nuvoton.com
+  10          //  E-Mail : MicroC-8bit@nuvoton.com
+  11          //  Date   : Apr/21/2016
+  12          //********************************************************************************************************
+             -***
+  13          
+  14          //********************************************************************************************************
+             -***
+  15          //  File Function: N76E003 demo code
+  16          //********************************************************************************************************
+             -***
+  17          #include "main.h"
+  18           //WIFI-DMX.COM
+  19          uint32_t idata LocalTime = 0;
+  20          xdata uint8_t SysBuf=0,LCDDisplight=1;
+  21          
+  22          xdata SYS_Typedef SYS_State=SYS_Dmx;
+  23          xdata SYS_Typedef SYS_StateBuf=SYS_Dmx;
+  24          xdata RUN_Typedef RUN_State=RUN_Reset;
+  25          xdata uint16_t SystemNum,KeyBuf1=0xff,KeyBuf2=0xff;
+  26          xdata uint16_t BackLightNum=1,TimeOut=0,Task_Sys_i=0,Task_XY_State=0,Task_COLOR_State=0;
+  27          xdata uint8_t COLO_SIGNAL_MARK=1,Reset_Mark=0,Reset_Time=0,Temp_Reset=0,TempDispMark=0,Temperature=31;
+  28          
+  29          
+  30          /*********************************************************************************************************
+             -***
+  31          *    Main function 
+  32          **********************************************************************************************************
+             -**/
+  33          void main(void)
+  34          {
+  35   1              Set_All_GPIO_Quasi_Mode;
+  36   1              Pwm_Init();
+  37   1              P05_PushPull_Mode;
+  38   1      //      TM1618_Update(LED_0,LED_1,LED_2,LED_3,LED_PN);
+  39   1              IIC_Eprom_Config();
+  40   1              Task_Init();
+  41   1              Timer2_Init();
+  42   1              UART_Init();
+  43   1              RUN_State=RUN_Normal;   
+C51 COMPILER V9.00   MAIN                                                                  07/01/2019 15:07:32 PAGE 2   
+
+  44   1              SYS_MenuInit();
+  45   1              MenuShow();
+  46   1              //DataFlashCheck();
+  47   1              while(1){
+  48   2                      Task_Run(Task_st,Task_Null,&Priority);
+  49   2              }
+  50   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     99    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     27    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =      4    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
